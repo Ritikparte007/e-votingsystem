@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify OTP — Online Voting System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { saffron: { 500: '#f59e0b', 600: '#d97706' } },
+                    fontFamily: { inter: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+
+        /* Same gradient bar as register.html */
+        .gradient-bar {
+            background: linear-gradient(90deg, #f59e0b 33%, #fff 33%, #fff 66%, #16a34a 66%);
+            height: 4px;
+        }
+
+        /* OTP Input Boxes */
+        .otp-input {
+            width: 52px;
+            height: 58px;
+            text-align: center;
+            font-size: 1.6rem;
+            font-weight: 700;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            outline: none;
+            transition: all 0.2s;
+            background: white;
+            color: #1a3c5e;
+        }
+        .otp-input:focus {
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+        }
+        .otp-input.filled {
+            border-color: #16a34a;
+            background: #f0fdf4;
+        }
+        .otp-input.error {
+            border-color: #ef4444;
+            background: #fef2f2;
+            animation: shake 0.3s ease;
+        }
+
+        /* Timer color transition */
+        .timer-normal { color: #f59e0b; }
+        .timer-urgent { color: #ef4444; }
+
+        /* Shake animation on wrong OTP */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25%       { transform: translateX(-6px); }
+            75%       { transform: translateX(6px); }
+        }
+
+        /* Pulse on success */
+        @keyframes pulse-green {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.4); }
+            50%       { box-shadow: 0 0 0 8px rgba(22, 163, 74, 0); }
+        }
+        .otp-input.success {
+            border-color: #16a34a;
+            animation: pulse-green 0.6s ease;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 font-inter text-gray-800 min-h-screen flex flex-col">
+
+    <!-- ═══ Navbar (same as register.html) ═══════════════════════════════════ -->
+    <nav class="bg-[#1a3c5e] text-white sticky top-0 z-50 shadow-lg">
+        <div class="gradient-bar"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <a href="/index" class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center border-2 border-yellow-400">
+                        <i class="fas fa-landmark text-yellow-400 text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-bold leading-tight">Online Voting System</h1>
+                        <p class="text-xs text-gray-300">Government of India — Election Commission</p>
+                    </div>
+                </a>
+                <div class="flex items-center space-x-3">
+                    <a href="/login"    class="px-5 py-2 text-sm font-medium hover:text-yellow-400 transition">Login</a>
+                    <a href="/register" class="bg-yellow-500 hover:bg-yellow-600 px-5 py-2 rounded-lg text-sm font-semibold transition shadow-md">Register</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ═══ Main Content ══════════════════════════════════════════════════════ -->
+    <main class="flex-1 flex items-center justify-center py-12 px-4">
+        <div class="w-full max-w-md">
+
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-[#1a3c5e] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <i class="fas fa-mobile-alt text-yellow-400 text-2xl"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-[#1a3c5e]">Phone Verification</h2>
+                <p class="text-gray-500 mt-2 text-sm">
+                    OTP bheja gaya hai aapke number pe:
+                </p>
+                <!-- Masked mobile number from controller -->
+                <p class="text-[#1a3c5e] font-bold text-lg mt-1" th:text="${maskedMobile}">98*****210</p>
+            </div>
+
+            <!-- Card (same style as register.html) -->
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
+
+                <!-- ✅ Error Message -->
+                <div th:if="${error}"
+                     class="mb-6 bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-xl flex items-center space-x-2">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span th:text="${error}"></span>
+                </div>
+
+                <!-- ✅ Success Message (OTP resend success) -->
+                <div th:if="${success}"
+                     class="mb-6 bg-green-50 border border-green-200 text-green-600 text-sm px-4 py-3 rounded-xl flex items-center space-x-2">
+                    <i class="fas fa-check-circle"></i>
+                    <span th:text="${success}"></span>
+                </div>
+
+                <!-- OTP Form -->
+                <form action="/verify-otp" method="post" id="otpForm">
+
+                    <!-- Hidden input — actual OTP value bhejta hai server ko -->
+                    <input type="hidden" name="otp" id="otpHidden">
+
+                    <!-- Label -->
+                    <label class="block text-sm font-semibold text-gray-700 mb-4 text-center">
+                        6-digit OTP enter karo
+                    </label>
+
+                    <!-- ═══ 6 OTP Boxes ════════════════════════════════════════ -->
+                    <div class="flex justify-center gap-3 mb-2" id="otpBoxes">
+                        <input class="otp-input" type="text" maxlength="1" inputmode="numeric" autocomplete="one-time-code">
+                        <input class="otp-input" type="text" maxlength="1" inputmode="numeric">
+                        <input class="otp-input" type="text" maxlength="1" inputmode="numeric">
+                        <input class="otp-input" type="text" maxlength="1" inputmode="numeric">
+                        <input class="otp-input" type="text" maxlength="1" inputmode="numeric">
+                        <input class="otp-input" type="text" maxlength="1" inputmode="numeric">
+                    </div>
+
+                    <!-- ═══ Countdown Timer ════════════════════════════════════ -->
+                    <div class="text-center mt-4 mb-6">
+                        <p class="text-sm text-gray-500">
+                            OTP expire hoga:
+                            <span id="timer" class="font-bold text-lg timer-normal">05:00</span>
+                        </p>
+                        <!-- Progress bar -->
+                        <div class="w-full bg-gray-100 rounded-full h-1.5 mt-2">
+                            <div id="progressBar"
+                                 class="h-1.5 rounded-full transition-all duration-1000"
+                                 style="width:100%; background:#f59e0b;"></div>
+                        </div>
+                    </div>
+
+                    <!-- ═══ Verify Button ══════════════════════════════════════ -->
+                    <button type="submit" id="submitBtn"
+                        class="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-3.5 rounded-xl font-semibold text-sm transition shadow-lg hover:shadow-xl flex items-center justify-center space-x-2">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Verify OTP</span>
+                    </button>
+
+                </form>
+
+                <!-- ═══ Resend & Back Links ════════════════════════════════════ -->
+                <div class="mt-6 space-y-3 text-center">
+
+                    <!-- Resend OTP -->
+                    <p class="text-sm text-gray-500">
+                        OTP nahi mila?
+                        <a href="/resend-otp" id="resendLink"
+                           class="text-yellow-500 font-semibold hover:underline ml-1">
+                            <i class="fas fa-redo text-xs mr-1"></i>Resend OTP
+                        </a>
+                    </p>
+
+                    <!-- Divider -->
+                    <div class="border-t border-gray-100 pt-3">
+                        <a href="/register"
+                           class="text-sm text-gray-400 hover:text-gray-600 transition flex items-center justify-center gap-1">
+                            <i class="fas fa-arrow-left text-xs"></i>
+                            Wapas Register pe jao
+                        </a>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Info box -->
+            <div class="mt-4 bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 flex items-start gap-3">
+                <i class="fas fa-info-circle text-blue-400 mt-0.5 text-sm"></i>
+                <p class="text-xs text-blue-600">
+                    OTP sirf aapke registered mobile number pe aayega. Kisi ke saath share mat karo.
+                    Ye OTP <strong>5 minutes</strong> mein expire ho jayega.
+                </p>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- ═══ Footer (same as register.html) ══════════════════════════════════ -->
+    <footer class="bg-[#1a3c5e] text-white py-6">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-sm">© 2026 Online Voting System — Election Commission of India</p>
+            <p class="text-xs text-gray-400 mt-1">All rights reserved. Unauthorized access is punishable by law.</p>
+        </div>
+    </footer>
+
+    <!-- ═══ JavaScript ════════════════════════════════════════════════════════ -->
+    <script>
+        // ── OTP Box Logic ──────────────────────────────────────────────────────
+        const boxes = document.querySelectorAll('.otp-input');
+
+        boxes.forEach((box, index) => {
+
+            // ── Input: sirf number allow karo, auto-jump next ──────────────
+            box.addEventListener('input', function () {
+                this.value = this.value.replace(/[^0-9]/g, ''); // numbers only
+
+                if (this.value) {
+                    this.classList.add('filled');
+                    this.classList.remove('error');
+                    // Auto jump to next box
+                    if (index < boxes.length - 1) {
+                        boxes[index + 1].focus();
+                    }
+                } else {
+                    this.classList.remove('filled');
+                }
+                updateHiddenInput();
+            });
+
+            // ── Backspace: pichle box pe jao ──────────────────────────────
+            box.addEventListener('keydown', function (e) {
+                if (e.key === 'Backspace' && !this.value && index > 0) {
+                    boxes[index - 1].focus();
+                    boxes[index - 1].value = '';
+                    boxes[index - 1].classList.remove('filled');
+                    updateHiddenInput();
+                }
+            });
+
+            // ── Paste: poora OTP ek saath paste karo ──────────────────────
+            box.addEventListener('paste', function (e) {
+                e.preventDefault();
+                const pasted = e.clipboardData
+                    .getData('text')
+                    .replace(/[^0-9]/g, '')
+                    .slice(0, 6);
+
+                [...pasted].forEach((char, i) => {
+                    if (boxes[i]) {
+                        boxes[i].value = char;
+                        boxes[i].classList.add('filled');
+                        boxes[i].classList.remove('error');
+                    }
+                });
+
+                updateHiddenInput();
+
+                // Last filled box pe focus karo
+                const lastIndex = Math.min(pasted.length - 1, boxes.length - 1);
+                boxes[lastIndex].focus();
+            });
+
+            // ── Click: select all in box ───────────────────────────────────
+            box.addEventListener('click', function () {
+                this.select();
+            });
+        });
+
+        // Saare boxes ki value combine karke hidden input mein daalo
+        function updateHiddenInput() {
+            document.getElementById('otpHidden').value =
+                [...boxes].map(b => b.value).join('');
+        }
+
+        // ── Form Submit Validation ─────────────────────────────────────────
+        document.getElementById('otpForm').addEventListener('submit', function (e) {
+            const otp = document.getElementById('otpHidden').value;
+
+            if (otp.length !== 6) {
+                e.preventDefault();
+                // Sabhi boxes pe error class lagao
+                boxes.forEach(b => {
+                    if (!b.value) b.classList.add('error');
+                });
+                // First empty box pe focus
+                const firstEmpty = [...boxes].find(b => !b.value);
+                if (firstEmpty) firstEmpty.focus();
+                return;
+            }
+
+            // Submit button loading state
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span class="ml-2">Verifying...</span>';
+        });
+
+        // ── Countdown Timer ────────────────────────────────────────────────
+        const TOTAL_SECONDS = 300; // 5 minutes
+        let secondsLeft = TOTAL_SECONDS;
+        const timerEl      = document.getElementById('timer');
+        const progressBar  = document.getElementById('progressBar');
+        const resendLink   = document.getElementById('resendLink');
+
+        const timerInterval = setInterval(() => {
+            secondsLeft--;
+
+            // Timer display update
+            const m = Math.floor(secondsLeft / 60).toString().padStart(2, '0');
+            const s = (secondsLeft % 60).toString().padStart(2, '0');
+            timerEl.textContent = `${m}:${s}`;
+
+            // Progress bar update
+            const pct = (secondsLeft / TOTAL_SECONDS) * 100;
+            progressBar.style.width = pct + '%';
+
+            // Last 60 sec: color red
+            if (secondsLeft <= 60) {
+                timerEl.classList.remove('timer-normal');
+                timerEl.classList.add('timer-urgent');
+                progressBar.style.background = '#ef4444';
+            }
+
+            // OTP Expired
+            if (secondsLeft <= 0) {
+                clearInterval(timerInterval);
+                timerEl.textContent = 'Expired!';
+                progressBar.style.width = '0%';
+
+                // Disable submit
+                document.getElementById('submitBtn').disabled = true;
+                document.getElementById('submitBtn').classList.add('opacity-50', 'cursor-not-allowed');
+                document.getElementById('submitBtn').innerHTML =
+                    '<i class="fas fa-times-circle"></i><span class="ml-2">OTP Expired</span>';
+
+                // Auto redirect after 2 sec
+                setTimeout(() => {
+                    alert('OTP expire ho gaya! Dobara register karo.');
+                    window.location.href = '/register';
+                }, 2000);
+            }
+        }, 1000);
+
+        // ── First box pe auto focus ────────────────────────────────────────
+        window.addEventListener('load', () => {
+            boxes[0].focus();
+        });
+    </script>
+
+</body>
+</html>

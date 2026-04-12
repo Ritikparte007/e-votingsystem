@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard — Online Voting System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { saffron: { 500: '#f59e0b', 600: '#d97706' } },
+                    fontFamily: { inter: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .gradient-bar {
+            background: linear-gradient(90deg, #f59e0b 33%, #fff 33%, #fff 66%, #16a34a 66%);
+            height: 4px;
+        }
+
+        .sidebar-link {
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            background: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 font-inter text-gray-800 min-h-screen">
+
+    <!-- Navbar -->
+    <nav class="bg-[#1a3c5e] text-white sticky top-0 z-50 shadow-lg">
+        <div class="gradient-bar"></div>
+        <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <a href="/index" class="flex items-center space-x-3">
+                    <div
+                        class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center border-2 border-yellow-400">
+                        <i class="fas fa-landmark text-yellow-400 text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-bold leading-tight">Online Voting System</h1>
+                        <p class="text-xs text-gray-300">Admin Dashboard</p>
+                    </div>
+                </a>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-300"><i class="fas fa-user-shield mr-1"></i> Admin</span>
+                    <a href="/logout" class="text-sm text-red-300 hover:text-red-200 transition">
+                        <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex min-h-[calc(100vh-68px)]">
+
+        <!-- Sidebar -->
+        <aside class="w-64 bg-white border-r border-gray-200 shadow-sm hidden md:block">
+            <div class="p-4">
+                <p class="text-xs font-bold uppercase text-gray-400 tracking-wider mb-3">Menu</p>
+                <nav class="space-y-1">
+                    <button onclick="showTab('overview')"
+                        class="sidebar-link active w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium text-gray-600 flex items-center space-x-3"
+                        data-tab="overview">
+                        <i class="fas fa-chart-pie w-5"></i><span>Overview</span>
+                    </button>
+                    <button onclick="showTab('elections')"
+                        class="sidebar-link w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium text-gray-600 flex items-center space-x-3"
+                        data-tab="elections">
+                        <i class="fas fa-calendar-check w-5"></i><span>Elections</span>
+                    </button>
+                    <button onclick="showTab('candidates')"
+                        class="sidebar-link w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium text-gray-600 flex items-center space-x-3"
+                        data-tab="candidates">
+                        <i class="fas fa-users w-5"></i><span>Candidates</span>
+                    </button>
+                    <button onclick="showTab('voters')"
+                        class="sidebar-link w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium text-gray-600 flex items-center space-x-3"
+                        data-tab="voters">
+                        <i class="fas fa-id-card w-5"></i><span>Voters</span>
+                    </button>
+                    <button onclick="showTab('results')"
+                        class="sidebar-link w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium text-gray-600 flex items-center space-x-3"
+                        data-tab="results">
+                        <i class="fas fa-chart-bar w-5"></i><span>Results</span>
+                    </button>
+                    <button onclick="showTab('logs')"
+                        class="sidebar-link w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium text-gray-600 flex items-center space-x-3"
+                        data-tab="logs">
+                        <i class="fas fa-clock-rotate-left w-5"></i><span>Activity Logs</span>
+                    </button>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-6 md:p-8 overflow-auto">
+
+            <!-- ==================== OVERVIEW TAB ==================== -->
+            <div id="tab-overview" class="tab-content active">
+                <h2 class="text-2xl font-bold text-[#1a3c5e] mb-6">Dashboard Overview</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                    <div class="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-sm text-gray-500">Active Elections</span>
+                            <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-calendar-check text-blue-500"></i>
+                            </div>
+                        </div>
+                        <p class="text-3xl font-bold text-gray-800" th:text="${activeElections}">0</p>
+                    </div>
+                    <div class="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-sm text-gray-500">Total Voters</span>
+                            <div class="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-users text-green-500"></i>
+                            </div>
+                        </div>
+                        <p class="text-3xl font-bold text-gray-800" th:text="${totalVoters}">0</p>
+                    </div>
+                    <div class="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-sm text-gray-500">Votes Cast</span>
+                            <div class="w-10 h-10 bg-amber-50 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-vote-yea text-amber-500"></i>
+                            </div>
+                        </div>
+                        <p class="text-3xl font-bold text-gray-800" th:text="${totalVotes}">0</p>
+                    </div>
+                    <div class="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-sm text-gray-500">Candidates</span>
+                            <div class="w-10 h-10 bg-purple-50 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-user-tie text-purple-500"></i>
+                            </div>
+                        </div>
+                        <p class="text-3xl font-bold text-gray-800" th:text="${totalCandidates}">0</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+                        <h3 class="text-lg font-bold text-gray-800 mb-4">
+                            <i class="fas fa-chart-pie text-amber-500 mr-2"></i>Vote Distribution
+                        </h3>
+                        <div class="space-y-4">
+                            <div th:each="c : ${candidates}" class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <span class="text-xl" th:text="${c.symbol}">🗳</span>
+                                    <div>
+                                        <p class="text-sm font-semibold text-gray-700" th:text="${c.fullName}">Name</p>
+                                        <p class="text-xs text-gray-400" th:text="${c.partyName}">Party</p>
+                                    </div>
+                                </div>
+                                <span class="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded-full">0 votes</span>
+                            </div>
+                            <p th:if="${#lists.isEmpty(candidates)}" class="text-gray-400 text-sm">No candidates yet.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+                        <h3 class="text-lg font-bold text-gray-800 mb-4">
+                            <i class="fas fa-clock text-amber-500 mr-2"></i>Recent Elections
+                        </h3>
+                        <div class="space-y-3">
+                            <div th:each="e : ${elections}"
+                                class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div>
+                                    <p class="text-sm font-semibold text-gray-700" th:text="${e.electionName}">Election
+                                    </p>
+                                    <p class="text-xs text-gray-400"
+                                        th:text="'Start: ' + ${e.startDate} + ' → End: ' + ${e.endDate}">Dates</p>
+                                </div>
+                                <span th:if="${e.status == 'ACTIVE'}"
+                                    class="text-xs bg-green-100 text-green-700 font-bold px-2 py-1 rounded-full">🟢
+                                    Active</span>
+                                <span th:if="${e.status == 'STOPPED'}"
+                                    class="text-xs bg-red-100 text-red-700 font-bold px-2 py-1 rounded-full">🔴
+                                    Stopped</span>
+                            </div>
+                            <p th:if="${#lists.isEmpty(elections)}" class="text-gray-400 text-sm">No elections yet.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== ELECTIONS TAB ==================== -->
+            <div id="tab-elections" class="tab-content">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-[#1a3c5e]">Election Management</h2>
+                    <button onclick="document.getElementById('addElectionForm').classList.toggle('hidden')"
+                        class="px-5 py-2.5 rounded-lg text-sm font-semibold bg-green-500 hover:bg-green-600 text-white shadow-md transition">
+                        ➕ Add Election
+                    </button>
+                </div>
+                <div id="addElectionForm" class="hidden bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
+                    <h3 class="text-lg font-bold text-gray-700 mb-4">
+                        <i class="fas fa-plus-circle text-green-500 mr-2"></i>New Election
+                    </h3>
+                    <form action="/add-election" method="post" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm text-gray-600 font-medium mb-1">Election Name</label>
+                            <input type="text" name="electionName" required placeholder="e.g. General Assembly 2026"
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-600 font-medium mb-1">Start Date</label>
+                            <input type="date" name="startDate" required
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 mb-1">Start Time</label>
+                            <input type="time" name="startTime" required value="09:00"
+                                class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-yellow-400">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-600 font-medium mb-1">End Date</label>
+                            <input type="date" name="endDate" required
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 mb-1">End Time</label>
+                            <input type="time" name="endTime" required value="17:00"
+                                class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-yellow-400">
+                        </div>
+                        <div class="md:col-span-3 flex space-x-3">
+                            <button type="submit"
+                                class="px-6 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm font-semibold transition">
+                                <i class="fas fa-save mr-1"></i> Save Election
+                            </button>
+                            <button type="button"
+                                onclick="document.getElementById('addElectionForm').classList.add('hidden')"
+                                class="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg text-sm font-semibold transition">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+                    <table class="w-full">
+                        <thead class="bg-gray-50 border-b border-gray-100">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">#</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Election Name
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Start Date
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">End Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            <tr th:each="e, i : ${elections}" class="hover:bg-gray-50 transition">
+                                <td class="px-6 py-4 text-sm text-gray-500" th:text="${i.count}">1</td>
+                                <td class="px-6 py-4 text-sm font-semibold text-gray-800" th:text="${e.electionName}">
+                                    Name</td>
+                                <td class="px-6 py-4">
+                                    <div class="text-sm text-gray-700" th:text="${e.startDate}">Date</div>
+                                    <div class="text-xs text-green-600 mt-0.5" th:if="${e.startTime != null}"
+                                        th:text="${#temporals.format(e.startTime, 'hh:mm a')}">09:00 AM</div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="text-sm text-gray-700" th:text="${e.endDate}">Date</div>
+                                    <div class="text-xs text-red-500 mt-0.5" th:if="${e.endTime != null}"
+                                        th:text="${#temporals.format(e.endTime, 'hh:mm a')}">05:00 PM</div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span th:if="${e.status == 'ACTIVE'}"
+                                        class="bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full">🟢
+                                        Active</span>
+                                    <span th:if="${e.status == 'STOPPED'}"
+                                        class="bg-red-100 text-red-700 text-xs font-bold px-3 py-1 rounded-full">🔴
+                                        Stopped</span>
+                                </td>
+                                <td class="px-6 py-4 flex space-x-2">
+                                    <a th:href="@{/toggle-election/{id}(id=${e.electionId})}"
+                                        th:text="${e.status == 'ACTIVE'} ? '⏹ Stop' : '▶ Start'"
+                                        th:class="${e.status == 'ACTIVE'} ?
+                                            'bg-red-500 hover:bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition' :
+                                            'bg-green-500 hover:bg-green-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition'">
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(elections)}">
+                                <td colspan="6" class="px-6 py-8 text-center text-gray-400 text-sm">
+                                    No elections created yet.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ==================== CANDIDATES TAB ==================== -->
+            <div id="tab-candidates" class="tab-content">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-[#1a3c5e]">Candidate Management</h2>
+                    <button onclick="document.getElementById('addCandidateForm').classList.toggle('hidden')"
+                        class="px-5 py-2.5 rounded-lg text-sm font-semibold bg-green-500 hover:bg-green-600 text-white shadow-md transition">
+                        ➕ Add Candidate
+                    </button>
+                </div>
+
+                <!-- Add Candidate Form -->
+                <div id="addCandidateForm" class="hidden bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
+                    <h3 class="text-lg font-bold text-gray-700 mb-4">
+                        <i class="fas fa-user-plus text-green-500 mr-2"></i>New Candidate
+                    </h3>
+                    <form action="/add-candidate" method="post" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm text-gray-600 font-medium mb-1">Full Name</label>
+                            <input type="text" name="fullName" required placeholder="e.g. Rahul Gandhi"
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-600 font-medium mb-1">Party Name</label>
+                            <input type="text" name="partyName" required placeholder="e.g. INC"
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-600 font-medium mb-1">Symbol</label>
+                            <input type="text" name="symbol" required placeholder="e.g. ✋"
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-600 font-medium mb-1">Link to Election</label>
+                            <select name="electionId" required
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400">
+                                <option value="">-- Select Election --</option>
+                                <option th:each="e : ${elections}" th:value="${e.electionId}"
+                                    th:text="${e.electionName} + ' (' + ${e.status} + ')'">
+                                </option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm text-gray-600 font-medium mb-1">Description / Bio</label>
+                            <textarea name="description" rows="3" placeholder="Brief bio or agenda..."
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 resize-none"></textarea>
+                        </div>
+                        <div class="md:col-span-2 flex space-x-3">
+                            <button type="submit"
+                                class="px-6 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm font-semibold transition">
+                                <i class="fas fa-save mr-1"></i> Save Candidate
+                            </button>
+                            <button type="button"
+                                onclick="document.getElementById('addCandidateForm').classList.add('hidden')"
+                                class="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg text-sm font-semibold transition">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Edit Candidate Form -->
+
+
+                <!-- Candidate Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div th:each="c : ${candidates}"
+                        class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 hover:shadow-md transition">
+
+                        <div class="flex items-start space-x-4">
+                            <div class="w-14 h-14 rounded-full bg-amber-100 flex items-center justify-center text-2xl flex-shrink-0"
+                                th:text="${c.symbol}">🗳</div>
+                            <div class="flex-1 min-w-0">
+                                <h3 class="font-bold text-gray-800 text-base truncate" th:text="${c.fullName}">Name</h3>
+                                <p class="text-sm text-amber-600 font-medium mt-0.5" th:text="${c.partyName}">Party</p>
+                                <div class="mt-1">
+                                    <span th:if="${c.election != null}"
+                                        class="inline-block bg-blue-50 text-blue-700 text-xs font-semibold px-2 py-0.5 rounded-full"
+                                        th:text="'🗳 ' + ${c.election.electionName}">
+                                    </span>
+                                    <span th:if="${c.election == null}"
+                                        class="inline-block bg-gray-100 text-gray-400 text-xs px-2 py-0.5 rounded-full">
+                                        No Election Linked
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p th:if="${c.description != null and !#strings.isEmpty(c.description)}"
+                            class="mt-3 text-sm text-gray-500 leading-relaxed border-t border-gray-100 pt-3"
+                            th:text="${c.description}">
+                        </p>
+
+                        <!-- ✅ Edit + Delete Buttons — FIXED -->
+                        <!-- Status Badge only — No Edit/Delete -->
+                        <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
+                            <span class="text-xs text-gray-400">
+                                <i class="fas fa-shield-alt mr-1"></i> Nomination Filed
+                            </span>
+                            <span class="bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full">
+                                ✅ ACTIVE
+                            </span>
+                        </div>
+                    </div>
+
+                    <div th:if="${#lists.isEmpty(candidates)}" class="col-span-3 text-center py-10 text-gray-400">
+                        <i class="fas fa-user-slash text-4xl mb-3"></i>
+                        <p>No candidates added yet.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== VOTERS TAB ==================== -->
+            <!-- ==================== VOTERS TAB ==================== -->
+            <div id="tab-voters" class="tab-content">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-[#1a3c5e]">Voter Management</h2>
+                    <div class="flex items-center space-x-3">
+                        <span class="text-sm text-gray-500">
+                            Total: <strong th:text="${#lists.size(users)}">0</strong> voters
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Stats Row -->
+                <!-- Stats Row -->
+                <div class="grid grid-cols-3 gap-4 mb-6">
+                    <div class="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
+                        <p class="text-2xl font-bold text-green-700" th:text="${verifiedCount}">0</p>
+                        <p class="text-xs text-green-600 font-semibold mt-1">✅ Verified</p>
+                    </div>
+                    <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-center">
+                        <p class="text-2xl font-bold text-amber-700" th:text="${pendingCount}">0</p>
+                        <p class="text-xs text-amber-600 font-semibold mt-1">⏳ Pending Approval</p>
+                    </div>
+                    <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 text-center">
+                        <p class="text-2xl font-bold text-blue-700" th:text="${totalVoters}">0</p>
+                        <p class="text-xs text-blue-600 font-semibold mt-1">👥 Total Registered</p>
+                    </div>
+                </div>
+
+                <!-- Voter Cards -->
+                <div class="space-y-3">
+                    <div th:each="user : ${users}"
+                        class="bg-white rounded-xl border shadow-sm hover:shadow-md transition overflow-hidden"
+                        th:classappend="${user.verified} ? 'border-gray-100' : 'border-amber-200'">
+
+                        <div class="flex items-center justify-between p-5">
+
+                            <!-- Left: Avatar + Info -->
+                            <div class="flex items-center space-x-4">
+                                <!-- Avatar -->
+                                <div class="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0"
+                                    th:style="${user.verified} ? 'background: #16a34a' : 'background: #f59e0b'"
+                                    th:text="${#strings.substring(user.fullName, 0, 1)}">A</div>
+
+                                <!-- Basic Info -->
+                                <div>
+                                    <div class="flex items-center space-x-2">
+                                        <h4 class="font-bold text-gray-800 text-sm" th:text="${user.fullName}">Name</h4>
+                                        <span th:if="${user.verified}"
+                                            class="bg-green-100 text-green-700 text-xs font-bold px-2 py-0.5 rounded-full">
+                                            ✅ Verified
+                                        </span>
+                                        <span th:if="${!user.verified}"
+                                            class="bg-amber-100 text-amber-700 text-xs font-bold px-2 py-0.5 rounded-full">
+                                            ⏳ Pending
+                                        </span>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-0.5" th:text="${user.email}">email</p>
+                                </div>
+                            </div>
+
+                            <!-- Right: Action -->
+                            <div class="flex items-center space-x-3">
+                                <!-- Toggle Details Button -->
+                                <button type="button" th:onclick="'toggleVoterDetails(' + ${user.userId} + ')'"
+                                    class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs font-semibold rounded-lg transition">
+                                    <i class="fas fa-eye mr-1"></i> Details
+                                </button>
+
+                                <!-- Approve Button -->
+                                <a th:if="${!user.verified}" th:href="@{/verify-voter/{id}(id=${user.userId})}"
+                                    onclick="return confirm('Approve this voter?')"
+                                    class="px-4 py-1.5 bg-green-500 hover:bg-green-600 text-white text-xs font-bold rounded-lg transition shadow-sm flex items-center space-x-1">
+                                    <i class="fas fa-user-check"></i>
+                                    <span>Approve</span>
+                                </a>
+
+                                <!-- Verified Badge -->
+                                <span th:if="${user.verified}"
+                                    class="px-4 py-1.5 bg-green-50 text-green-700 text-xs font-bold rounded-lg border border-green-200">
+                                    <i class="fas fa-check-circle mr-1"></i> Approved
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Expandable Details Section (hidden by default) -->
+                        <div th:id="'voter-details-' + ${user.userId}"
+                            class="hidden border-t border-gray-100 bg-gray-50 px-5 py-4">
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+
+                                <!-- Voter ID -->
+                                <div class="bg-white rounded-lg p-3 border border-gray-100">
+                                    <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">
+                                        <i class="fas fa-id-card mr-1 text-blue-400"></i> Voter ID
+                                    </p>
+                                    <p class="text-sm font-bold text-gray-800" th:text="${user.voterId}">ID</p>
+                                </div>
+
+                                <!-- Aadhaar Number -->
+                                <div class="bg-white rounded-lg p-3 border border-amber-100">
+                                    <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">
+                                        <i class="fas fa-fingerprint mr-1 text-amber-400"></i> Aadhaar No
+                                    </p>
+                                    <p class="text-sm font-bold text-gray-800 tracking-widest"
+                                        th:text="${user.aadhaarNo}">XXXX XXXX XXXX</p>
+                                </div>
+
+                                <!-- Mobile -->
+                                <div class="bg-white rounded-lg p-3 border border-gray-100">
+                                    <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">
+                                        <i class="fas fa-phone mr-1 text-green-400"></i> Mobile
+                                    </p>
+                                    <p class="text-sm font-bold text-gray-800" th:text="${user.mobileNo}">Mobile</p>
+                                </div>
+
+                                <!-- Date of Birth -->
+                                <div class="bg-white rounded-lg p-3 border border-gray-100">
+                                    <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">
+                                        <i class="fas fa-calendar mr-1 text-purple-400"></i> Date of Birth
+                                    </p>
+                                    <p class="text-sm font-bold text-gray-800" th:text="${user.dateOfBirth}">DOB</p>
+                                </div>
+
+                                <!-- Address -->
+                                <div class="bg-white rounded-lg p-3 border border-gray-100 md:col-span-2">
+                                    <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">
+                                        <i class="fas fa-map-marker-alt mr-1 text-red-400"></i> Address
+                                    </p>
+                                    <p class="text-sm font-bold text-gray-800" th:text="${user.address}">Address</p>
+                                </div>
+
+                                <!-- State -->
+                                <div class="bg-white rounded-lg p-3 border border-gray-100">
+                                    <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">
+                                        <i class="fas fa-map mr-1 text-indigo-400"></i> State
+                                    </p>
+                                    <p class="text-sm font-bold text-gray-800" th:text="${user.state}">State</p>
+                                </div>
+
+                                <!-- Email -->
+                                <div class="bg-white rounded-lg p-3 border border-gray-100">
+                                    <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">
+                                        <i class="fas fa-envelope mr-1 text-blue-400"></i> Email
+                                    </p>
+                                    <p class="text-sm font-bold text-gray-800" th:text="${user.email}">Email</p>
+                                </div>
+
+                            </div>
+
+                            <!-- Approve button inside details too -->
+                            <div th:if="${!user.verified}" class="mt-4 flex justify-end">
+                                <a th:href="@{/verify-voter/{id}(id=${user.userId})}"
+                                    onclick="return confirm('Approve this voter?')"
+                                    class="px-6 py-2 bg-green-500 hover:bg-green-600 text-white text-sm font-bold rounded-lg transition shadow flex items-center space-x-2">
+                                    <i class="fas fa-user-check"></i>
+                                    <span>✅ Approve This Voter</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Empty state -->
+                    <div th:if="${#lists.isEmpty(users)}"
+                        class="bg-white rounded-xl border border-gray-100 p-12 text-center text-gray-400">
+                        <i class="fas fa-users text-5xl mb-4 block"></i>
+                        <p class="font-semibold text-lg">No voters registered yet.</p>
+                        <p class="text-sm mt-1">Voters will appear here after registration.</p>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- ==================== RESULTS TAB ==================== -->
+            <!-- ==================== RESULTS TAB ==================== -->
+
+            <!-- ==================== RESULTS TAB ==================== -->
+            <div id="tab-results" class="tab-content">
+
+
+                <div th:each="e : ${elections}" th:if="${e.status == 'ACTIVE'}">
+                    <input type="hidden" th:id="'endDate-' + ${e.electionId}" th:value="${e.endDate}">
+                    <input type="hidden" th:id="'endTime-' + ${e.electionId}"
+                        th:value="${e.endTime != null ? #temporals.format(e.endTime, 'HH:mm') : '17:00'}">
+                </div>
+
+
+                <!-- Active Election ke time LIVE header -->
+                <div th:if="${activeElections > 0}" class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-[#1a3c5e]">Live Election Results</h2>
+                    <span
+                        class="inline-flex items-center bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                        <span class="w-2 h-2 bg-white rounded-full mr-1.5 animate-ping"></span> LIVE
+                    </span>
+                </div>
+
+                <!-- Election STOPPED hone ke baad FINAL header -->
+                <div th:if="${activeElections == 0}" class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-[#1a3c5e]">Final Election Results</h2>
+                    <span
+                        class="inline-flex items-center bg-gray-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+                        <i class="fas fa-flag-checkered mr-1.5"></i> VOTING CLOSED
+                    </span>
+                </div>
+
+                <!-- Stats Row -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+                    <div
+                        class="bg-gradient-to-br from-amber-50 to-amber-100 border border-amber-200 rounded-xl p-5 text-center">
+                        <div class="w-12 h-12 bg-amber-500 rounded-xl flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-vote-yea text-white text-lg"></i>
+                        </div>
+                        <p class="text-3xl font-extrabold text-amber-700" th:text="${totalVotes}">0</p>
+                        <p class="text-xs font-semibold text-amber-600 mt-1 uppercase tracking-wide">Total Votes Cast
+                        </p>
+                    </div>
+
+                    <div
+                        class="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-5 text-center">
+                        <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-users text-white text-lg"></i>
+                        </div>
+                        <p class="text-3xl font-extrabold text-blue-700" th:text="${totalVoters}">0</p>
+                        <p class="text-xs font-semibold text-blue-600 mt-1 uppercase tracking-wide">Registered Voters
+                        </p>
+                    </div>
+
+                    <div
+                        class="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-xl p-5 text-center">
+                        <div class="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-chart-line text-white text-lg"></i>
+                        </div>
+                        <p class="text-3xl font-extrabold text-green-700">
+                            <span th:text="${turnoutPercent}">0.0</span>%
+                        </p>
+                        <p class="text-xs font-semibold text-green-600 mt-1 uppercase tracking-wide">Voter Turnout</p>
+                    </div>
+                </div>
+                <!-- Countdown Timer -->
+                <div th:if="${activeElections > 0}" class="space-y-4 mb-6">
+    <div th:each="e : ${elections}" th:if="${e.status == 'ACTIVE'}"
+         class="bg-white rounded-xl border border-amber-200 shadow-sm p-5">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-xs font-bold text-gray-400 uppercase">Election Ends In</p>
+                <p class="text-sm font-bold text-gray-700" th:text="${e.electionName}">Name</p>
+            </div>
+            <div class="flex space-x-3">
+                <div class="bg-[#1a3c5e] text-white rounded-xl px-4 py-3 min-w-[64px] text-center">
+                    <p class="text-2xl font-extrabold" th:id="'cd-hours-' + ${e.electionId}">00</p>
+                    <p class="text-xs text-gray-300">Hours</p>
+                </div>
+                <div class="bg-[#1a3c5e] text-white rounded-xl px-4 py-3 min-w-[64px] text-center">
+                    <p class="text-2xl font-extrabold" th:id="'cd-minutes-' + ${e.electionId}">00</p>
+                    <p class="text-xs text-gray-300">Minutes</p>
+                </div>
+                <div class="bg-amber-500 text-white rounded-xl px-4 py-3 min-w-[64px] text-center">
+                    <p class="text-2xl font-extrabold" th:id="'cd-seconds-' + ${e.electionId}">00</p>
+                    <p class="text-xs text-white/80">Seconds</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+                <!-- Results Card -->
+                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+
+                    <!-- LIVE Header -->
+                    <div th:if="${activeElections > 0}"
+                        class="bg-[#1a3c5e] px-6 py-4 flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-chart-bar text-yellow-400 text-xl"></i>
+                            <h3 class="text-white font-bold text-lg">Candidate-wise Vote Count</h3>
+                        </div>
+                        <span
+                            class="inline-flex items-center bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                            <span class="w-2 h-2 bg-white rounded-full mr-1.5 animate-ping"></span> LIVE
+                        </span>
+                    </div>
+
+                    <!-- FINAL Header -->
+                    <div th:if="${activeElections == 0}"
+                        class="bg-gray-700 px-6 py-4 flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-trophy text-yellow-400 text-xl"></i>
+                            <h3 class="text-white font-bold text-lg">Final Vote Count</h3>
+                        </div>
+                        <span
+                            class="inline-flex items-center bg-gray-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                            <i class="fas fa-lock mr-1.5"></i> RESULTS LOCKED
+                        </span>
+                    </div>
+
+                    <!-- Results List -->
+                    <div class="p-6">
+                        <div th:if="${!#lists.isEmpty(voteResults)}" class="space-y-5">
+                            <div th:each="res, i : ${voteResults}">
+
+                                <!-- Rank + Name Row -->
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="flex items-center space-x-3">
+
+                                        <!-- Rank Medal -->
+                                        <div class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-extrabold flex-shrink-0"
+                                            th:classappend="${i.index == 0} ? 'bg-yellow-400 text-gray-900' :
+                                               (${i.index == 1} ? 'bg-gray-300 text-gray-700' :
+                                               (${i.index == 2} ? 'bg-amber-600 text-white' : 'bg-gray-100 text-gray-500'))">
+                                            <span th:text="${i.index == 0} ? '🥇' :
+                                              (${i.index == 1} ? '🥈' :
+                                              (${i.index == 2} ? '🥉' : ${i.count}))">1</span>
+                                        </div>
+
+                                        <!-- Candidate Name -->
+                                        <div>
+                                            <p class="font-bold text-gray-800 text-sm" th:text="${res[0]}">Candidate</p>
+                                            <p class="text-xs text-gray-400">
+                                                <span
+                                                    th:text="${totalVotes > 0 ? #numbers.formatDecimal(res[1] * 100.0 / totalVotes, 1, 1) : '0.0'}">0.0</span>%
+                                                of total votes
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Vote Count -->
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-lg font-extrabold"
+                                            th:classappend="${i.index == 0} ? 'text-amber-600' : 'text-gray-700'"
+                                            th:text="${res[1]}">0</span>
+                                        <span class="text-xs text-gray-400 font-medium">votes</span>
+
+                                        <!-- LIVE — Leading badge -->
+                                        <span th:if="${i.index == 0 and activeElections > 0}"
+                                            class="bg-yellow-100 text-yellow-700 text-xs font-bold px-2 py-0.5 rounded-full ml-1">
+                                            👑 Leading
+                                        </span>
+
+                                        <!-- STOPPED — Winner badge -->
+                                        <span th:if="${i.index == 0 and activeElections == 0}"
+                                            class="bg-green-100 text-green-700 text-xs font-bold px-2 py-0.5 rounded-full ml-1">
+                                            🏆 Winner
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <!-- Progress Bar -->
+                                <div class="w-full bg-gray-100 rounded-full h-4 overflow-hidden">
+                                    <div class="h-full rounded-full" th:style="'width: ' + (${totalVotes} > 0 ? (${res[1]} * 100 / ${totalVotes}) : 0) + '%; background: ' +
+                                       (${i.index == 0} ? '#f59e0b' :
+                                       (${i.index == 1} ? '#6b7280' :
+                                       (${i.index == 2} ? '#d97706' : '#3b82f6')))" style="width: 0%;">
+                                    </div>
+                                </div>
+
+                                <!-- Percentage Label -->
+                                <div class="flex justify-between text-xs text-gray-400 mt-1">
+                                    <span>0%</span>
+                                    <span
+                                        th:text="${totalVotes > 0 ? #numbers.formatDecimal(res[1] * 100.0 / totalVotes, 1, 1) : '0.0'} + '%'">0%</span>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- No votes yet -->
+                        <div th:if="${#lists.isEmpty(voteResults)}" class="text-center py-16 text-gray-400">
+                            <i class="fas fa-chart-bar text-6xl mb-4 block text-gray-200"></i>
+                            <p class="font-bold text-lg text-gray-500">No Votes Recorded Yet</p>
+                            <p class="text-sm mt-2">Results will appear here once voting begins.</p>
+                        </div>
+                    </div>
+
+                    <!-- LIVE — Current Leader Box -->
+                    <div th:if="${!#lists.isEmpty(voteResults) and activeElections > 0}"
+                        class="bg-gradient-to-r from-yellow-50 to-amber-50 border-t border-amber-200 px-6 py-4">
+                        <div class="flex items-center space-x-4">
+                            <div
+                                class="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center text-2xl flex-shrink-0">
+                                👑
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-amber-600 uppercase tracking-wide">Current Leader</p>
+                                <p class="text-lg font-extrabold text-gray-800" th:text="${voteResults[0][0]}">Leader
+                                </p>
+                                <p class="text-sm text-gray-500">
+                                    <span th:text="${voteResults[0][1]}">0</span> votes ·
+                                    <span
+                                        th:text="${totalVotes > 0 ? #numbers.formatDecimal(voteResults[0][1] * 100.0 / totalVotes, 1, 1) : '0.0'}">0.0</span>%
+                                    lead
+                                </p>
+                            </div>
+                            <div class="ml-auto text-right">
+                                <p class="text-xs text-gray-400">Total votes counted</p>
+                                <p class="text-2xl font-extrabold text-amber-600" th:text="${totalVotes}">0</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STOPPED — Winner Announcement Box -->
+                    <div th:if="${!#lists.isEmpty(voteResults) and activeElections == 0}"
+                        class="bg-gradient-to-r from-green-50 to-emerald-50 border-t border-green-300 px-6 py-6">
+                        <div class="text-center mb-4">
+                            <span
+                                class="inline-block bg-green-100 text-green-700 text-xs font-bold px-4 py-1 rounded-full uppercase tracking-wide">
+                                🏁 Election Completed — Official Result
+                            </span>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <div
+                                class="w-16 h-16 bg-yellow-400 rounded-full flex items-center justify-center text-3xl flex-shrink-0 shadow-lg">
+                                🏆
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-green-600 uppercase tracking-wide">🎉 Winner</p>
+                                <p class="text-2xl font-extrabold text-gray-800" th:text="${voteResults[0][0]}">Winner
+                                </p>
+                                <p class="text-sm text-gray-500 mt-1">
+                                    <span th:text="${voteResults[0][1]}">0</span> votes ·
+                                    <span
+                                        th:text="${totalVotes > 0 ? #numbers.formatDecimal(voteResults[0][1] * 100.0 / totalVotes, 1, 1) : '0.0'}">0.0</span>%
+                                    of total votes
+                                </p>
+                            </div>
+                            <div class="ml-auto text-right">
+                                <p class="text-xs text-gray-400">Total votes counted</p>
+                                <p class="text-2xl font-extrabold text-green-600" th:text="${totalVotes}">0</p>
+                                <p class="text-xs text-gray-400 mt-1">Election Closed</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="bg-gray-50 border-t border-gray-100 px-6 py-3 flex items-center justify-between">
+                        <p class="text-xs text-gray-400">
+                            <i class="fas fa-database mr-1"></i>
+                            <span th:if="${activeElections > 0}">Live data from database</span>
+                            <span th:if="${activeElections == 0}">Final results — Election Closed</span>
+                        </p>
+                        <p class="text-xs text-gray-400">
+                            <span th:if="${activeElections > 0}">
+                                <i class="fas fa-clock mr-1"></i> Updates on page refresh
+                            </span>
+                            <span th:if="${activeElections == 0}">
+                                <i class="fas fa-lock mr-1"></i> Results Locked
+                            </span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== LOGS TAB ==================== -->
+            <!-- ==================== LOGS TAB ==================== -->
+            <div id="tab-logs" class="tab-content">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-[#1a3c5e]">Activity Logs</h2>
+                    <span
+                        class="inline-flex items-center bg-red-100 text-red-600 text-xs font-bold px-3 py-1 rounded-full">
+                        <span class="w-2 h-2 bg-red-500 rounded-full mr-1.5 animate-ping"></span> LIVE
+                    </span>
+                </div>
+
+                <!-- Log Stats -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 text-center">
+                        <i class="fas fa-list text-blue-500 text-xl mb-2 block"></i>
+                        <p class="text-2xl font-bold text-blue-700" th:text="${#lists.size(logs)}">0</p>
+                        <p class="text-xs text-blue-500 font-semibold">Total Logs</p>
+                    </div>
+                    <div class="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
+                        <i class="fas fa-vote-yea text-green-500 text-xl mb-2 block"></i>
+                        <p class="text-2xl font-bold text-green-700" th:text="${totalVotes}">0</p>
+                        <p class="text-xs text-green-500 font-semibold">Votes Cast</p>
+                    </div>
+                    <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-center">
+                        <i class="fas fa-user-shield text-amber-500 text-xl mb-2 block"></i>
+                        <p class="text-2xl font-bold text-amber-700" th:text="${verifiedCount}">0</p>
+                        <p class="text-xs text-amber-500 font-semibold">Approved Voters</p>
+                    </div>
+                    <div class="bg-purple-50 border border-purple-200 rounded-xl p-4 text-center">
+                        <i class="fas fa-calendar-check text-purple-500 text-xl mb-2 block"></i>
+                        <p class="text-2xl font-bold text-purple-700" th:text="${activeElections}">0</p>
+                        <p class="text-xs text-purple-500 font-semibold">Active Elections</p>
+                    </div>
+                </div>
+
+                <!-- Logs Table -->
+                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+
+                    <!-- Table Header -->
+                    <div class="bg-[#1a3c5e] px-6 py-4 flex items-center space-x-3">
+                        <i class="fas fa-clock-rotate-left text-yellow-400"></i>
+                        <h3 class="text-white font-bold">Recent Activity (Last 50)</h3>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50 border-b border-gray-100">
+                                <tr>
+                                    <th class="px-5 py-3 text-left text-xs font-bold text-gray-500 uppercase">#</th>
+                                    <th class="px-5 py-3 text-left text-xs font-bold text-gray-500 uppercase">Timestamp
+                                    </th>
+                                    <th class="px-5 py-3 text-left text-xs font-bold text-gray-500 uppercase">User</th>
+                                    <th class="px-5 py-3 text-left text-xs font-bold text-gray-500 uppercase">Type</th>
+                                    <th class="px-5 py-3 text-left text-xs font-bold text-gray-500 uppercase">Action
+                                    </th>
+                                    <th class="px-5 py-3 text-left text-xs font-bold text-gray-500 uppercase">Details
+                                    </th>
+                                    <th class="px-5 py-3 text-left text-xs font-bold text-gray-500 uppercase">IP</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-50">
+                                <tr th:each="log, i : ${logs}" class="hover:bg-gray-50 transition"
+                                    th:classappend="${i.index % 2 == 0} ? '' : 'bg-gray-50/50'">
+
+                                    <!-- # -->
+                                    <td class="px-5 py-3 text-xs text-gray-400" th:text="${i.count}">1</td>
+
+                                    <!-- Timestamp -->
+                                    <td class="px-5 py-3 text-xs text-gray-500 whitespace-nowrap">
+                                        <i class="fas fa-clock mr-1 text-gray-300"></i>
+                                        <span th:text="${#temporals.format(log.loggedAt, 'dd MMM yyyy')}">Date</span>
+                                        <br>
+                                        <span class="text-gray-400 font-mono"
+                                            th:text="${#temporals.format(log.loggedAt, 'hh:mm:ss a')}">Time</span>
+                                    </td>
+
+                                    <!-- Username -->
+                                    <td class="px-5 py-3">
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
+                                                th:style="${log.userType == 'ADMIN'} ? 'background:#1a3c5e' : 'background:#f59e0b'"
+                                                th:text="${#strings.substring(log.username, 0, 1)}">A</div>
+                                            <span class="text-sm font-semibold text-gray-700"
+                                                th:text="${log.username}">User</span>
+                                        </div>
+                                    </td>
+
+                                    <!-- User Type Badge -->
+                                    <td class="px-5 py-3">
+                                        <span th:if="${log.userType == 'ADMIN'}"
+                                            class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-0.5 rounded-full">
+                                            🛡️ Admin
+                                        </span>
+                                        <span th:if="${log.userType == 'VOTER'}"
+                                            class="bg-green-100 text-green-700 text-xs font-bold px-2 py-0.5 rounded-full">
+                                            👤 Voter
+                                        </span>
+                                    </td>
+
+                                    <!-- Action -->
+                                    <td class="px-5 py-3">
+                                        <span class="text-xs font-bold px-2 py-1 rounded-lg"
+                                            th:classappend="${log.action == 'Vote Cast'} ? 'bg-green-100 text-green-700' :
+                                                 (${log.action == 'Voter Login' or log.action == 'Admin Login'} ? 'bg-blue-100 text-blue-700' :
+                                                 (${log.action == 'Failed Login'} ? 'bg-red-100 text-red-700' :
+                                                 (${log.action == 'Voter Approved'} ? 'bg-purple-100 text-purple-700' :
+                                                 (${log.action == 'Logout'} ? 'bg-gray-100 text-gray-600' : 'bg-amber-100 text-amber-700'))))"
+                                            th:text="${log.action}">Action</span>
+                                    </td>
+
+                                    <!-- Details -->
+                                    <td class="px-5 py-3 text-xs text-gray-500 max-w-xs truncate"
+                                        th:text="${log.details}">Details</td>
+
+                                    <!-- IP -->
+                                    <td class="px-5 py-3 text-xs text-gray-400 font-mono" th:text="${log.ipAddress}">IP
+                                    </td>
+                                </tr>
+
+                                <!-- Empty State -->
+                                <tr th:if="${#lists.isEmpty(logs)}">
+                                    <td colspan="7" class="px-6 py-16 text-center">
+                                        <i class="fas fa-clock-rotate-left text-5xl text-gray-200 block mb-4"></i>
+                                        <p class="text-gray-500 font-semibold">No activity logs yet.</p>
+                                        <p class="text-gray-400 text-sm mt-1">Logs will appear here when users login,
+                                            vote, or admin performs actions.</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="bg-gray-50 border-t border-gray-100 px-6 py-3 flex items-center justify-between">
+                        <p class="text-xs text-gray-400">
+                            <i class="fas fa-database mr-1"></i>
+                            Showing last 50 activities
+                        </p>
+                        <p class="text-xs text-gray-400">
+                            <i class="fas fa-shield-alt mr-1"></i>
+                            All actions are securely logged
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ✅ FIXED JAVASCRIPT -->
+    <script>
+        // Tab switching
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.sidebar-link').forEach(link => link.classList.remove('active'));
+            document.getElementById('tab-' + tabName).classList.add('active');
+            document.querySelector('[data-tab="' + tabName + '"]').classList.add('active');
+        }
+
+        // ✅ FIXED: reads from hidden spans — no Thymeleaf string injection issues
+        function openEditForm(id) {
+            const fullName = document.getElementById('cname-' + id).innerText;
+            const partyName = document.getElementById('cparty-' + id).innerText;
+            const symbol = document.getElementById('csymbol-' + id).innerText;
+            const description = document.getElementById('cdesc-' + id).innerText;
+            const electionId = document.getElementById('celec-' + id).innerText;
+
+            // Fill edit form
+            document.getElementById('editFullName').value = fullName;
+            document.getElementById('editPartyName').value = partyName;
+            document.getElementById('editSymbol').value = symbol;
+            document.getElementById('editDescription').value = description;
+
+            // Set election dropdown
+            const select = document.getElementById('editElectionId');
+            for (let option of select.options) {
+                option.selected = (option.value == electionId.trim());
+            }
+
+            // Set form POST url
+            document.getElementById('editFormTag').action = '/edit-candidate/' + id;
+
+            // Show edit form, hide add form
+            document.getElementById('addCandidateForm').classList.add('hidden');
+            document.getElementById('editCandidateForm').classList.remove('hidden');
+            document.getElementById('editCandidateForm').scrollIntoView({ behavior: 'smooth' });
+        }
+
+
+        function toggleVoterDetails(userId) {
+            const details = document.getElementById('voter-details-' + userId);
+            if (details.classList.contains('hidden')) {
+                details.classList.remove('hidden');
+            } else {
+                details.classList.add('hidden');
+            }
+        }
+
+
+        // Countdown Timer
+
+
+        // YE NAYA — LAGAO
+        document.querySelectorAll('input[id^="endDate-"]').forEach(function(input) {
+    const electionId = input.id.replace('endDate-', '');
+    const endDateStr = input.value;
+    const endTimeStr = document.getElementById('endTime-' + electionId).value || '17:00';
+    if (!endDateStr) return;
+    const endDateTime = new Date(endDateStr + 'T' + endTimeStr + ':00');
+    function updateCountdown() {
+        const diff = endDateTime - new Date();
+        if (diff <= 0) {
+            document.getElementById('cd-hours-' + electionId).innerText = '00';
+            document.getElementById('cd-minutes-' + electionId).innerText = '00';
+            document.getElementById('cd-seconds-' + electionId).innerText = '00';
+            return;
+        }
+        document.getElementById('cd-hours-' + electionId).innerText = String(Math.floor(diff / 3600000)).padStart(2, '0');
+        document.getElementById('cd-minutes-' + electionId).innerText = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
+        document.getElementById('cd-seconds-' + electionId).innerText = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+    }
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+});
+
+
+    </script>
+
+</body>
+
+</html>

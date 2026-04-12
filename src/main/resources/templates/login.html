@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login — Online Voting System</title>
+    <meta name="description" content="Login to the Online Voting System to cast your vote securely.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { saffron: { 500: '#f59e0b', 600: '#d97706' } },
+                    fontFamily: { inter: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .gradient-bar {
+            background: linear-gradient(90deg, #f59e0b 33%, #fff 33%, #fff 66%, #16a34a 66%);
+            height: 4px;
+        }
+
+        .input-focus:focus {
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 font-inter text-gray-800 min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <nav class="bg-[#1a3c5e] text-white sticky top-0 z-50 shadow-lg">
+        <div class="gradient-bar"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <a href="index.html" class="flex items-center space-x-3">
+                    <div
+                        class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center border-2 border-saffron-500">
+                        <i class="fas fa-landmark text-saffron-500 text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-bold leading-tight">Online Voting System</h1>
+                        <p class="text-xs text-gray-300">Government of India — Election Commission</p>
+                    </div>
+                </a>
+                <div class="flex items-center space-x-3">
+                    <a href="/login"
+                        class="px-5 py-2 text-sm font-medium hover:text-saffron-500 transition">Login</a>
+                    <a href="/register"
+                        class="bg-saffron-500 hover:bg-saffron-600 px-5 py-2 rounded-lg text-sm font-semibold transition shadow-md">Register</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Form -->
+    <main class="flex-1 flex items-center justify-center py-16 px-4">
+        <div class="w-full max-w-md">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-[#1a3c5e] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <i class="fas fa-right-to-bracket text-saffron-500 text-2xl"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-[#1a3c5e]">Welcome Back</h2>
+                <p class="text-gray-500 mt-2">Login to cast your vote</p>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
+                <!-- Role Tabs -->
+                <div class="flex bg-gray-100 rounded-xl p-1 mb-6">
+                    <button onclick="switchRole('voter')" id="tabVoter"
+                        class="flex-1 py-2.5 text-sm font-semibold rounded-lg bg-[#1a3c5e] text-white transition">
+                        <i class="fas fa-user mr-1"></i> Voter
+                    </button>
+                    <button onclick="switchRole('admin')" id="tabAdmin"
+                        class="flex-1 py-2.5 text-sm font-semibold rounded-lg text-gray-500 hover:text-gray-700 transition">
+                        <i class="fas fa-user-shield mr-1"></i> Admin
+                    </button>
+                </div>
+
+                <form action="/login" method="post">
+                    <input type="hidden" id="loginRole" name="role" value="voter">
+                    <!-- Voter ID / Username -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5" id="loginIdLabel">Voter ID or
+                            Email</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400"><i
+                                    class="fas fa-id-card" id="loginIdIcon"></i></span>
+                            <input type="text" id="loginId" name="loginId" required placeholder="Enter Voter ID or email"
+                                class="input-focus w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none transition">
+                        </div>
+                    </div>
+                    <!-- Password -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Password</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400"><i
+                                    class="fas fa-lock"></i></span>
+                            <input type="password" name="password"  id="loginPassword" required placeholder="Enter your password"
+                                class="input-focus w-full pl-10 pr-12 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none transition">
+                            <button type="button" onclick="togglePassword()"
+                                class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-eye" id="eyeIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Remember + Forgot -->
+                    <div class="flex items-center justify-between mb-6">
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" class="accent-saffron-500">
+                            <span class="text-sm text-gray-600">Remember me</span>
+                        </label>
+                        <a href="#" class="text-sm text-saffron-500 font-medium hover:underline">Forgot password?</a>
+                    </div>
+
+                    <!-- Error message -->
+                    <div id="loginError" class="hidden mb-4 bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-xl">
+    <p th:if="${error}" th:text="${error}" style="color:red;"></p>
+</div>
+
+                    <!-- Submit -->
+                    <button type="submit"
+                        class="w-full bg-saffron-500 hover:bg-saffron-600 text-white py-3.5 rounded-xl font-semibold text-sm transition shadow-lg hover:shadow-xl flex items-center justify-center space-x-2">
+                        <i class="fas fa-arrow-right-to-bracket"></i>
+                        <span>Login</span>
+                    </button>
+
+                    <p class="text-center text-sm text-gray-500 mt-5">
+                        Don't have an account? <a href="/register"
+                            class="text-saffron-500 font-semibold hover:underline">Register here</a>
+                    </p>
+                </form>
+            </div>
+
+            <!-- Demo credentials -->
+            <div class="mt-6 bg-blue-50 border border-blue-200 rounded-xl p-4">
+                <p class="text-xs font-semibold text-blue-700 mb-2"><i class="fas fa-info-circle mr-1"></i> Demo
+                    Credentials</p>
+                <div class="grid grid-cols-2 gap-3 text-xs text-blue-600">
+                    <div>
+                        <p class="font-medium">Voter Login:</p>
+                        <p>ID: VOT001 / Pass: voter123</p>
+                    </div>
+                    <div>
+                        <p class="font-medium">Admin Login:</p>
+                        <p>ID: admin / Pass: admin123</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-[#1a3c5e] text-white py-6">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-sm">© 2026 Online Voting System — Election Commission of India</p>
+            <p class="text-xs text-gray-400 mt-1">All rights reserved. Unauthorized access is punishable by law.</p>
+        </div>
+    </footer>
+
+    <script>
+function switchRole(role) {
+    const voterTab = document.getElementById("tabVoter");
+    const adminTab = document.getElementById("tabAdmin");
+    const roleInput = document.getElementById("loginRole");
+
+    if (role === "admin") {
+        adminTab.classList.add("bg-[#1a3c5e]", "text-white");
+        voterTab.classList.remove("bg-[#1a3c5e]", "text-white");
+
+        roleInput.value = "admin";
+    } else {
+        voterTab.classList.add("bg-[#1a3c5e]", "text-white");
+        adminTab.classList.remove("bg-[#1a3c5e]", "text-white");
+
+        roleInput.value = "voter";
+    }
+}
+</script>
+
+
+    {% comment %} <script th:src="@{/js/app.js}"></script> {% endcomment %}
+</body>
+
+</html>

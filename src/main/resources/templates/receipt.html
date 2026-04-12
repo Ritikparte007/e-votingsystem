@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vote Receipt — Online Voting System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bar {
+            background: linear-gradient(90deg, #f59e0b 33%, #fff 33%, #fff 66%, #16a34a 66%);
+            height: 4px;
+        }
+        /* Print styles */
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white; }
+            .receipt-card {
+                box-shadow: none !important;
+                border: 2px solid #000 !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <nav class="bg-[#1a3c5e] text-white sticky top-0 z-50 shadow-lg no-print">
+        <div class="gradient-bar"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center border-2 border-yellow-400">
+                        <i class="fas fa-landmark text-yellow-400 text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-bold leading-tight">Online Voting System</h1>
+                        <p class="text-xs text-gray-300">Government of India — Election Commission</p>
+                    </div>
+                </div>
+                <a href="/logout" class="text-sm text-red-300 hover:text-red-200 transition">
+                    <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main -->
+    <main class="flex-1 py-10 px-4">
+        <div class="max-w-2xl mx-auto">
+
+            <!-- Success Banner -->
+            <div class="text-center mb-8 no-print">
+                <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-check-circle text-green-500 text-4xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800">Vote Cast Successfully! 🎉</h2>
+                <p class="text-gray-500 text-sm mt-2">Your vote has been securely recorded. Below is your receipt.</p>
+            </div>
+
+            <!-- Receipt Card -->
+            <div class="receipt-card bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+
+                <!-- Receipt Header -->
+                <div class="bg-[#1a3c5e] px-6 py-5 text-white text-center">
+                    <div class="flex items-center justify-center space-x-3 mb-2">
+                        <i class="fas fa-landmark text-yellow-400 text-2xl"></i>
+                        <div>
+                            <h3 class="font-bold text-lg">Election Commission of India</h3>
+                            <p class="text-xs text-gray-300">Online Voting System — Official Receipt</p>
+                        </div>
+                    </div>
+                    <!-- Tricolor bar -->
+                    <div class="mt-3 h-1 rounded-full" style="background: linear-gradient(90deg, #f59e0b 33%, #fff 33%, #fff 66%, #16a34a 66%);"></div>
+                </div>
+
+                <!-- Receipt Body -->
+                <div class="p-6">
+
+                    <!-- Receipt Number -->
+                    <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 text-center">
+                        <p class="text-xs text-amber-600 font-semibold uppercase tracking-wider mb-1">Receipt Number</p>
+                        <p class="text-2xl font-bold text-amber-700 tracking-widest"
+                           th:text="${receipt.receiptNo}">VOTE-XXXXXXXXXX</p>
+                    </div>
+
+                    <!-- Details Grid -->
+                    <div class="space-y-3">
+
+                        <!-- Voter Info -->
+                        <div class="bg-gray-50 rounded-xl p-4">
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
+                                <i class="fas fa-user mr-1"></i> Voter Information
+                            </p>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <p class="text-xs text-gray-400">Full Name</p>
+                                    <p class="text-sm font-semibold text-gray-800"
+                                       th:text="${receipt.user.fullName}">Name</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-400">Voter ID</p>
+                                    <p class="text-sm font-semibold text-gray-800"
+                                       th:text="${receipt.user.voterId}">VOTER001</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Election Info -->
+                        <div class="bg-gray-50 rounded-xl p-4">
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
+                                <i class="fas fa-calendar-check mr-1"></i> Election Information
+                            </p>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="col-span-2">
+                                    <p class="text-xs text-gray-400">Election Name</p>
+                                    <p class="text-sm font-semibold text-gray-800"
+                                       th:text="${receipt.election.electionName}">Election</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-400">Start Date</p>
+                                    <p class="text-sm font-semibold text-gray-800"
+                                       th:text="${receipt.election.startDate}">Date</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-400">End Date</p>
+                                    <p class="text-sm font-semibold text-gray-800"
+                                       th:text="${receipt.election.endDate}">Date</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Vote Info — NOTE: We do NOT show candidate for secrecy -->
+                        <div class="bg-green-50 border border-green-200 rounded-xl p-4">
+                            <p class="text-xs font-bold text-green-600 uppercase tracking-wider mb-2">
+                                <i class="fas fa-vote-yea mr-1"></i> Vote Status
+                            </p>
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-check text-green-600"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-bold text-green-700">Vote Recorded Successfully</p>
+                                    <p class="text-xs text-green-600">Your vote is encrypted and confidential</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Timestamp -->
+                        <div class="bg-gray-50 rounded-xl p-4">
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+                                <i class="fas fa-clock mr-1"></i> Voting Timestamp
+                            </p>
+                            <p class="text-sm font-semibold text-gray-800"
+                               th:text="${#temporals.format(receipt.votedAt, 'dd MMM yyyy, hh:mm:ss a')}">
+                                Date Time
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <!-- Note -->
+                    <div class="mt-5 bg-blue-50 border border-blue-100 rounded-xl p-3">
+                        <p class="text-xs text-blue-600 text-center">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Keep this receipt number safe. It is proof of your participation in the election.
+                        </p>
+                    </div>
+
+                    <!-- Official Stamp area -->
+                    <div class="mt-5 flex items-center justify-between border-t border-gray-100 pt-4">
+                        <div>
+                            <p class="text-xs text-gray-400">Issued by</p>
+                            <p class="text-sm font-bold text-gray-700">Election Commission of India</p>
+                            <p class="text-xs text-gray-400">Online Voting System — 2026</p>
+                        </div>
+                        <div class="w-16 h-16 border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center">
+                            <i class="fas fa-stamp text-gray-300 text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex space-x-3 mt-6 no-print">
+                <button onclick="window.print()"
+                    class="flex-1 py-3 bg-[#1a3c5e] hover:bg-[#152f4a] text-white rounded-xl text-sm font-semibold transition shadow-lg flex items-center justify-center space-x-2">
+                    <i class="fas fa-print"></i>
+                    <span>Print Receipt</span>
+                </button>
+                <a href="/voter"
+                    class="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-sm font-semibold transition text-center flex items-center justify-center space-x-2">
+                    <i class="fas fa-home"></i>
+                    <span>Go Back</span>
+                </a>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-[#1a3c5e] text-white py-6 mt-auto no-print">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-sm">© 2026 Online Voting System — Election Commission of India</p>
+            <p class="text-xs text-gray-400 mt-1">All rights reserved.</p>
+        </div>
+    </footer>
+
+</body>
+</html>

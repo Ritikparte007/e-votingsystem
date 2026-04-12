@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Voting System — Election Commission of India</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        saffron: { 500: '#f59e0b', 600: '#d97706' },
+                        navy: { 900: '#1a3c5e', 800: '#152f4a' }
+                    },
+                    fontFamily: { inter: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bar {
+            background: linear-gradient(90deg, #f59e0b 33%, #fff 33%, #fff 66%, #16a34a 66%);
+            height: 4px;
+        }
+        .hero-bg {
+            background: linear-gradient(135deg, #1a3c5e 0%, #152f4a 50%, #0f2035 100%);
+        }
+        .feature-card { transition: all 0.3s ease; }
+        .feature-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.1); }
+        .live-dot { animation: pulse 1.5s infinite; }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        .progress-bar { transition: width 1.5s ease-in-out; }
+        .stat-card { transition: all 0.3s ease; }
+        .stat-card:hover { transform: translateY(-2px); }
+    </style>
+</head>
+
+<body class="bg-gray-50 font-inter text-gray-800">
+
+    <!-- Navbar -->
+    <nav class="bg-[#1a3c5e] text-white sticky top-0 z-50 shadow-lg">
+        <div class="gradient-bar"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center border-2 border-yellow-400">
+                        <i class="fas fa-landmark text-yellow-400 text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-bold leading-tight">Online Voting System</h1>
+                        <p class="text-xs text-gray-300">Government of India — Election Commission</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <a href="/login"
+                        class="px-5 py-2 text-sm font-medium hover:text-yellow-400 transition border border-white/20 rounded-lg">
+                        <i class="fas fa-sign-in-alt mr-1"></i> Login
+                    </a>
+                    <a href="/register"
+                        class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 px-5 py-2 rounded-lg text-sm font-bold transition shadow-md">
+                        <i class="fas fa-user-plus mr-1"></i> Register
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-bg py-24 text-white relative overflow-hidden">
+        <div class="absolute inset-0 opacity-5">
+            <div class="absolute top-10 left-10 w-64 h-64 rounded-full border-4 border-white"></div>
+            <div class="absolute bottom-10 right-10 w-96 h-96 rounded-full border-4 border-white"></div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+
+            <!-- Badge — LIVE ya CLOSED -->
+            <div th:if="${activeElectionCount > 0}"
+                 class="inline-flex items-center bg-white/10 border border-white/20 rounded-full px-4 py-2 mb-8">
+                <span class="w-2 h-2 bg-green-400 rounded-full mr-2 live-dot"></span>
+                <span class="text-sm font-medium text-green-300">Election Live Now</span>
+            </div>
+            <div th:if="${activeElectionCount == 0}"
+                 class="inline-flex items-center bg-white/10 border border-white/20 rounded-full px-4 py-2 mb-8">
+                <span class="w-2 h-2 bg-gray-400 rounded-full mr-2"></span>
+                <span class="text-sm font-medium text-gray-300">No Active Election</span>
+            </div>
+
+            <h2 class="text-5xl md:text-7xl font-extrabold mb-6 leading-tight">
+                Your Vote,<br>
+                <span class="text-yellow-400">Your Power</span>
+            </h2>
+            <p class="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto mb-10 leading-relaxed">
+                A secure, transparent, and user-friendly platform for conducting electronic elections.
+                Exercise your democratic right from anywhere, anytime.
+            </p>
+
+            <!-- Real Stats -->
+            <div class="flex justify-center space-x-6 md:space-x-16 mb-12">
+                <div class="text-center">
+                    <div class="text-4xl md:text-5xl font-extrabold text-yellow-400"
+                         th:text="${voteCount}">0</div>
+                    <div class="text-xs font-semibold text-gray-400 uppercase tracking-widest mt-1">Votes Cast</div>
+                </div>
+                <div class="w-px bg-white/20"></div>
+                <div class="text-center">
+                    <div class="text-4xl md:text-5xl font-extrabold text-yellow-400"
+                         th:text="${userCount}">0</div>
+                    <div class="text-xs font-semibold text-gray-400 uppercase tracking-widest mt-1">Registered Voters</div>
+                </div>
+                <div class="w-px bg-white/20"></div>
+                <div class="text-center">
+                    <div class="text-4xl md:text-5xl font-extrabold text-yellow-400"
+                         th:text="${activeElectionCount}">0</div>
+                    <div class="text-xs font-semibold text-gray-400 uppercase tracking-widest mt-1">Active Elections</div>
+                </div>
+            </div>
+
+            <!-- CTA Buttons -->
+            <div class="flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-4">
+                <a href="/register"
+                    class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 px-10 py-4 rounded-xl font-bold text-sm shadow-xl hover:shadow-2xl transition-all flex items-center justify-center space-x-2">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Register as Voter</span>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+                <a href="/login"
+                    class="bg-white/10 hover:bg-white/20 border border-white/30 text-white px-10 py-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center space-x-2">
+                    <i class="fas fa-vote-yea"></i>
+                    <span>Login to Vote</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Live Election Statistics -->
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <!-- Section Header -->
+            <div class="flex items-center justify-between mb-10">
+                <div class="flex items-center space-x-3">
+
+                    <!-- Title -->
+                    <h3 th:if="${activeElectionCount > 0}"
+                        class="text-2xl font-bold text-[#1a3c5e]">Live Election Statistics</h3>
+                    <h3 th:if="${activeElectionCount == 0}"
+                        class="text-2xl font-bold text-[#1a3c5e]">Final Election Results</h3>
+
+                    <!-- LIVE badge -->
+                    <span th:if="${activeElectionCount > 0}"
+                        class="inline-flex items-center bg-red-100 text-red-600 text-xs font-bold px-3 py-1 rounded-full">
+                        <span class="w-2 h-2 bg-red-500 rounded-full mr-1.5 live-dot"></span> LIVE
+                    </span>
+
+                    <!-- CLOSED badge -->
+                    <span th:if="${activeElectionCount == 0}"
+                        class="inline-flex items-center bg-gray-200 text-gray-600 text-xs font-bold px-3 py-1 rounded-full">
+                        <i class="fas fa-flag-checkered mr-1.5"></i> VOTING CLOSED
+                    </span>
+                </div>
+
+                <p class="text-xs text-gray-400 hidden md:block">
+                    <i class="fas fa-sync-alt mr-1"></i>
+                    <span th:if="${activeElectionCount > 0}">Real-time data from database</span>
+                    <span th:if="${activeElectionCount == 0}">Final results — Election Closed</span>
+                </p>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+                <div class="stat-card bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 text-center border border-blue-200 shadow-sm">
+                    <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-users text-white text-lg"></i>
+                    </div>
+                    <div class="text-3xl font-extrabold text-blue-700" th:text="${userCount}">0</div>
+                    <div class="text-xs font-semibold text-blue-500 mt-1 uppercase tracking-wide">Registered Voters</div>
+                </div>
+
+                <div class="stat-card bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl p-6 text-center border border-amber-200 shadow-sm">
+                    <div class="w-12 h-12 bg-amber-500 rounded-xl flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-vote-yea text-white text-lg"></i>
+                    </div>
+                    <div class="text-3xl font-extrabold text-amber-700" th:text="${voteCount}">0</div>
+                    <div class="text-xs font-semibold text-amber-500 mt-1 uppercase tracking-wide">Total Votes Cast</div>
+                </div>
+
+                <div class="stat-card bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 text-center border border-green-200 shadow-sm">
+                    <div class="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-chart-line text-white text-lg"></i>
+                    </div>
+                    <div class="text-3xl font-extrabold text-green-700">
+                        <span th:text="${userCount > 0 ? #numbers.formatDecimal(voteCount * 100.0 / userCount, 1, 1) : '0.0'}">0.0</span>%
+                    </div>
+                    <div class="text-xs font-semibold text-green-500 mt-1 uppercase tracking-wide">Voter Turnout</div>
+                </div>
+
+                <div class="stat-card bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 text-center border border-purple-200 shadow-sm">
+                    <div class="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-user-tie text-white text-lg"></i>
+                    </div>
+                    <div class="text-3xl font-extrabold text-purple-700" th:text="${candidateCount}">0</div>
+                    <div class="text-xs font-semibold text-purple-500 mt-1 uppercase tracking-wide">Candidates</div>
+                </div>
+            </div>
+
+            <!-- Vote Distribution -->
+            <div class="bg-gray-50 rounded-2xl border border-gray-100 shadow-sm p-6 md:p-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h4 class="text-lg font-bold text-gray-800">
+                        <i class="fas fa-chart-bar text-amber-500 mr-2"></i>
+                        <span th:if="${activeElectionCount > 0}">Live Vote Distribution</span>
+                        <span th:if="${activeElectionCount == 0}">Final Vote Distribution</span>
+                    </h4>
+                    <span class="text-sm text-gray-500">
+                        Total: <strong th:text="${voteCount}">0</strong> votes
+                    </span>
+                </div>
+
+                <!-- Candidates with votes -->
+                <div class="space-y-5">
+                    <div th:each="res, i : ${voteResults}">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <div class="flex items-center space-x-2">
+                                <span th:text="${i.index == 0} ? '🥇' :
+                                              (${i.index == 1} ? '🥈' :
+                                              (${i.index == 2} ? '🥉' : '🏅'))">🏅</span>
+                                <span class="font-semibold text-gray-800 text-sm"
+                                      th:text="${res[0]}">Candidate</span>
+
+                                <!-- Winner badge — election stopped -->
+                                <span th:if="${i.index == 0 and activeElectionCount == 0}"
+                                    class="bg-green-100 text-green-700 text-xs font-bold px-2 py-0.5 rounded-full">
+                                    🏆 Winner
+                                </span>
+
+                                <!-- Leading badge — election active -->
+                                <span th:if="${i.index == 0 and activeElectionCount > 0}"
+                                    class="bg-yellow-100 text-yellow-700 text-xs font-bold px-2 py-0.5 rounded-full">
+                                    👑 Leading
+                                </span>
+                            </div>
+                            <span class="text-sm font-bold text-amber-600"
+                                  th:text="${res[1]} + ' votes'">0 votes</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                            <div class="h-full rounded-full progress-bar"
+                                 th:style="'width: ' + (${voteCount} > 0 ? (${res[1]} * 100 / ${voteCount}) : 0) + '%; background: ' +
+                                           (${i.index == 0} ? '#f59e0b' :
+                                           (${i.index == 1} ? '#22c55e' :
+                                           (${i.index == 2} ? '#3b82f6' : '#a855f7')))"
+                                 style="width: 0%">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- No votes yet -->
+                    <div th:if="${#lists.isEmpty(voteResults)}"
+                         class="text-center py-8 text-gray-400">
+                        <i class="fas fa-chart-bar text-4xl mb-3 block"></i>
+                        <p class="font-medium">No votes recorded yet</p>
+                        <p class="text-sm mt-1">Be the first to vote!</p>
+                    </div>
+                </div>
+
+                <!-- Winner announcement — election stopped -->
+                <div th:if="${!#lists.isEmpty(voteResults) and activeElectionCount == 0}"
+                     class="mt-6 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-5">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-14 h-14 bg-yellow-400 rounded-full flex items-center justify-center text-2xl flex-shrink-0 shadow">
+                            🏆
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-green-600 uppercase tracking-wide">🎉 Official Winner</p>
+                            <p class="text-xl font-extrabold text-gray-800" th:text="${voteResults[0][0]}">Winner</p>
+                            <p class="text-sm text-gray-500 mt-0.5">
+                                <span th:text="${voteResults[0][1]}">0</span> votes ·
+                                <span th:text="${voteCount > 0 ? #numbers.formatDecimal(voteResults[0][1] * 100.0 / voteCount, 1, 1) : '0.0'}">0.0</span>% of total votes
+                            </p>
+                        </div>
+                        <div class="ml-auto text-right">
+                            <p class="text-xs text-gray-400">Total votes</p>
+                            <p class="text-2xl font-extrabold text-green-600" th:text="${voteCount}">0</p>
+                            <p class="text-xs text-gray-400 mt-1">
+                                <i class="fas fa-lock mr-1"></i>Results Locked
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="text-xs text-gray-400 text-center mt-6">
+                    <i class="fas fa-database mr-1"></i>
+                    <span th:if="${activeElectionCount > 0}">Live data from database — refreshes on page load</span>
+                    <span th:if="${activeElectionCount == 0}">Final results — Election has ended</span>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Key Features -->
+    <section class="py-16 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl md:text-4xl font-bold text-[#1a3c5e]">Key Features</h3>
+                <p class="text-gray-500 mt-3">Core innovations ensuring security, transparency, and trust</p>
+                <div class="w-16 h-1 bg-yellow-400 mx-auto mt-4 rounded-full"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="feature-card bg-white border border-gray-100 rounded-xl p-6 shadow-sm">
+                    <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mb-4">
+                        <i class="fas fa-shield-halved text-blue-600 text-xl"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-gray-800 mb-2">Secure & Verified</h4>
+                    <p class="text-gray-500 text-sm">Multi-layer authentication ensures only verified voters can cast their vote.</p>
+                </div>
+                <div class="feature-card bg-white border border-gray-100 rounded-xl p-6 shadow-sm">
+                    <div class="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center mb-4">
+                        <i class="fas fa-display text-amber-600 text-xl"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-gray-800 mb-2">Easy Online Voting</h4>
+                    <p class="text-gray-500 text-sm">Cast your vote from anywhere with a simple and intuitive interface.</p>
+                </div>
+                <div class="feature-card bg-white border border-gray-100 rounded-xl p-6 shadow-sm">
+                    <div class="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center mb-4">
+                        <i class="fas fa-chart-column text-green-600 text-xl"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-gray-800 mb-2">Live Statistics</h4>
+                    <p class="text-gray-500 text-sm">Real-time voting statistics for complete transparency.</p>
+                </div>
+                <div class="feature-card bg-white border border-gray-100 rounded-xl p-6 shadow-sm">
+                    <div class="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center mb-4">
+                        <i class="fas fa-file-invoice text-emerald-600 text-xl"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-gray-800 mb-2">Vote Receipt</h4>
+                    <p class="text-gray-500 text-sm">Get a unique receipt ID after voting for verification and trust.</p>
+                </div>
+                <div class="feature-card bg-white border border-gray-100 rounded-xl p-6 shadow-sm">
+                    <div class="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center mb-4">
+                        <i class="fas fa-lock text-red-500 text-xl"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-gray-800 mb-2">Duplicate Prevention</h4>
+                    <p class="text-gray-500 text-sm">Unique constraints prevent any voter from casting multiple votes.</p>
+                </div>
+                <div class="feature-card bg-white border border-gray-100 rounded-xl p-6 shadow-sm">
+                    <div class="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center mb-4">
+                        <i class="fas fa-eye text-indigo-600 text-xl"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-gray-800 mb-2">Transparent Process</h4>
+                    <p class="text-gray-500 text-sm">Complete audit trail and activity logging for election integrity.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="py-16 bg-[#1a3c5e]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-14">
+                <h3 class="text-3xl md:text-4xl font-bold text-white">How It Works</h3>
+                <p class="text-gray-400 mt-3">Simple 5-step process to cast your vote</p>
+                <div class="w-16 h-1 bg-yellow-400 mx-auto mt-4 rounded-full"></div>
+            </div>
+
+            <div class="flex flex-wrap justify-center items-start gap-6 md:gap-4">
+                <div th:each="step, i : ${ {'Register', 'Get Verified', 'Cast Vote', 'Get Receipt', 'Live Results'} }">
+                    <div class="flex items-center">
+                        <div class="flex flex-col items-center text-center w-36">
+                            <div class="w-16 h-16 bg-yellow-400 text-gray-900 rounded-full flex items-center justify-center text-2xl font-extrabold shadow-lg mb-4"
+                                 th:text="${i.count}">1</div>
+                            <h4 class="font-bold text-white text-sm" th:text="${step}">Step</h4>
+                        </div>
+                        <div th:if="${!i.last}" class="hidden md:block w-8 border-t-2 border-dashed border-yellow-400/30 mx-2 mb-10"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="py-16 bg-gradient-to-r from-amber-400 to-amber-500">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <h3 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">
+                Ready to Cast Your Vote?
+            </h3>
+            <p class="text-gray-800 mb-8 text-lg">
+                Join thousands of verified voters. Register now and exercise your democratic right!
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-4">
+                <a href="/register"
+                    class="bg-[#1a3c5e] hover:bg-[#152f4a] text-white px-10 py-4 rounded-xl font-bold text-sm shadow-xl transition-all flex items-center justify-center space-x-2">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Register Now — It's Free</span>
+                </a>
+                <a href="/login"
+                    class="bg-white hover:bg-gray-100 text-gray-900 px-10 py-4 rounded-xl font-bold text-sm shadow-xl transition-all flex items-center justify-center space-x-2">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>Login to Vote</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-[#1a3c5e] text-white py-8">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <div class="flex items-center justify-center space-x-3 mb-4">
+                <div class="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center border border-yellow-400">
+                    <i class="fas fa-landmark text-yellow-400 text-sm"></i>
+                </div>
+                <span class="font-bold">Online Voting System</span>
+            </div>
+            <p class="text-sm text-gray-300">© 2026 Election Commission of India. All rights reserved.</p>
+            <p class="text-xs text-gray-500 mt-2">Unauthorized access is punishable by law.</p>
+        </div>
+    </footer>
+
+</body>
+</html>
