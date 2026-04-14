@@ -163,25 +163,28 @@
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    
                     <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
                         <h3 class="text-lg font-bold text-gray-800 mb-4">
-                            <i class="fas fa-chart-pie text-amber-500 mr-2"></i>Vote Distribution
+                            <i class="fas fa-chart-pie text-amber-500 mr-2"></i>Live Vote Distribution (Top 5)
                         </h3>
                         <div class="space-y-4">
-                            <div th:each="c : ${candidates}" class="flex items-center justify-between">
+                            <div th:each="res, i : ${voteResults}" th:if="${i.index < 5}" class="flex items-center justify-between">
                                 <div class="flex items-center space-x-3">
-                                    <span class="text-xl" th:text="${c.symbol}">🗳</span>
+                                    <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 font-bold text-xs"
+                                         th:classappend="${i.index == 0} ? '!bg-yellow-100 !text-yellow-700' : ''"
+                                         th:text="'#' + ${i.count}">#1</div>
                                     <div>
-                                        <p class="text-sm font-semibold text-gray-700" th:text="${c.fullName}">Name</p>
-                                        <p class="text-xs text-gray-400" th:text="${c.partyName}">Party</p>
+                                        <p class="text-sm font-semibold text-gray-700" th:text="${res[0]}">Name</p>
                                     </div>
                                 </div>
-                                <span class="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded-full">0 votes</span>
+                                <span class="text-xs font-bold bg-amber-50 text-amber-600 border border-amber-200 px-3 py-1 rounded-full shadow-sm" 
+                                      th:text="${res[1]} + ' votes'">0 votes</span>
                             </div>
-                            <p th:if="${#lists.isEmpty(candidates)}" class="text-gray-400 text-sm">No candidates yet.
-                            </p>
+                            <p th:if="${#lists.isEmpty(voteResults)}" class="text-gray-400 text-sm">No votes recorded yet.</p>
                         </div>
                     </div>
+
                     <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
                         <h3 class="text-lg font-bold text-gray-800 mb-4">
                             <i class="fas fa-clock text-amber-500 mr-2"></i>Recent Elections
@@ -326,29 +329,37 @@
                     </button>
                 </div>
 
-                <!-- Add Candidate Form -->
+                <!-- ✅ UPDATED: Add Candidate Form (Added Age, File Upload, enctype) -->
                 <div id="addCandidateForm" class="hidden bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
                     <h3 class="text-lg font-bold text-gray-700 mb-4">
                         <i class="fas fa-user-plus text-green-500 mr-2"></i>New Candidate
                     </h3>
-                    <form action="/add-candidate" method="post" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <form action="/add-candidate" method="post" enctype="multipart/form-data" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        
+                        <!-- Name -->
                         <div>
-                            <label class="block text-sm text-gray-600 font-medium mb-1">Full Name</label>
+                            <label class="block text-sm text-gray-600 font-medium mb-1">Full Name <span class="text-red-500">*</span></label>
                             <input type="text" name="fullName" required placeholder="e.g. Rahul Gandhi"
                                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400">
                         </div>
+                        
+                        <!-- Party -->
                         <div>
-                            <label class="block text-sm text-gray-600 font-medium mb-1">Party Name</label>
+                            <label class="block text-sm text-gray-600 font-medium mb-1">Party Name <span class="text-red-500">*</span></label>
                             <input type="text" name="partyName" required placeholder="e.g. INC"
                                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400">
                         </div>
+
+                        <!-- Symbol -->
                         <div>
-                            <label class="block text-sm text-gray-600 font-medium mb-1">Symbol</label>
+                            <label class="block text-sm text-gray-600 font-medium mb-1">Symbol (Emoji) <span class="text-red-500">*</span></label>
                             <input type="text" name="symbol" required placeholder="e.g. ✋"
                                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400">
                         </div>
+
+                        <!-- Link to Election -->
                         <div>
-                            <label class="block text-sm text-gray-600 font-medium mb-1">Link to Election</label>
+                            <label class="block text-sm text-gray-600 font-medium mb-1">Link to Election <span class="text-red-500">*</span></label>
                             <select name="electionId" required
                                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400">
                                 <option value="">-- Select Election --</option>
@@ -357,14 +368,36 @@
                                 </option>
                             </select>
                         </div>
+
+                        <!-- ✅ NEW: Age -->
+                        <div>
+                            <label class="block text-sm text-gray-600 font-medium mb-1">Age <span class="text-red-500">*</span></label>
+                            <input type="number" name="age" required min="18" placeholder="e.g. 45"
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400">
+                        </div>
+
+                        <!-- ✅ NEW: Profile Image / Logo -->
+                        <div>
+                            <label class="block text-sm text-gray-600 font-medium mb-1">Profile Image / Party Logo <span class="text-red-500">*</span></label>
+                            <input type="file" name="candidateImage" required accept="image/jpeg, image/png, image/jpg"
+                                class="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 
+                                file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-amber-100 file:text-amber-700 hover:file:bg-amber-200">
+                        </div>
+
+                        <!-- ✅ NEW: State -->
+
+
+                        <!-- Description -->
                         <div class="md:col-span-2">
                             <label class="block text-sm text-gray-600 font-medium mb-1">Description / Bio</label>
                             <textarea name="description" rows="3" placeholder="Brief bio or agenda..."
                                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 resize-none"></textarea>
                         </div>
+
+                        <!-- Actions -->
                         <div class="md:col-span-2 flex space-x-3">
                             <button type="submit"
-                                class="px-6 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm font-semibold transition">
+                                class="px-6 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm font-semibold transition shadow-md">
                                 <i class="fas fa-save mr-1"></i> Save Candidate
                             </button>
                             <button type="button"
@@ -376,20 +409,35 @@
                     </form>
                 </div>
 
-                <!-- Edit Candidate Form -->
-
-
                 <!-- Candidate Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div th:each="c : ${candidates}"
                         class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 hover:shadow-md transition">
 
+                        <!-- ✅ UPDATED: Candidate Header (Image + Age included) -->
                         <div class="flex items-start space-x-4">
-                            <div class="w-14 h-14 rounded-full bg-amber-100 flex items-center justify-center text-2xl flex-shrink-0"
-                                th:text="${c.symbol}">🗳</div>
+                            
+                            <!-- Profile Image / Fallback Symbol -->
+                            <div class="relative w-16 h-16 rounded-full overflow-hidden border-2 border-amber-100 flex-shrink-0 bg-gray-50 flex items-center justify-center">
+                                <!-- If image exists -->
+                                <img th:if="${c.candidateImage != null and !#strings.isEmpty(c.candidateImage)}" 
+                                     th:src="@{/admin/candidate-image/{f}(f=${c.candidateImage})}" 
+                                     alt="Candidate" class="w-full h-full object-cover">
+                                <!-- Fallback if no image -->
+                                <span th:if="${c.candidateImage == null or #strings.isEmpty(c.candidateImage)}" 
+                                      class="text-3xl" th:text="${c.symbol}">🗳</span>
+                            </div>
+
                             <div class="flex-1 min-w-0">
                                 <h3 class="font-bold text-gray-800 text-base truncate" th:text="${c.fullName}">Name</h3>
-                                <p class="text-sm text-amber-600 font-medium mt-0.5" th:text="${c.partyName}">Party</p>
+                                
+                                <!-- Party & Age -->
+                                <p class="text-sm text-amber-600 font-medium mt-0.5">
+                                    <span th:text="${c.partyName}">Party</span>
+                                    <span class="text-gray-300 mx-1">•</span>
+                                    <span class="text-gray-500 text-xs" th:text="${c.age != null ? c.age + ' yrs' : 'N/A'}">45 yrs</span>
+                                </p>
+
                                 <div class="mt-1">
                                     <span th:if="${c.election != null}"
                                         class="inline-block bg-blue-50 text-blue-700 text-xs font-semibold px-2 py-0.5 rounded-full"
@@ -408,11 +456,11 @@
                             th:text="${c.description}">
                         </p>
 
-                        <!-- ✅ Edit + Delete Buttons — FIXED -->
-                        <!-- Status Badge only — No Edit/Delete -->
+                        <!-- Status Badge only -->
                         <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
-                            <span class="text-xs text-gray-400">
-                                <i class="fas fa-shield-alt mr-1"></i> Nomination Filed
+                            <span class="text-xs text-gray-500 font-medium">
+                                <span th:text="${c.symbol}" class="mr-1 border border-gray-200 rounded px-1 py-0.5 bg-gray-50"></span> 
+                                Symbol
                             </span>
                             <span class="bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full">
                                 ✅ ACTIVE
@@ -428,7 +476,6 @@
             </div>
 
             <!-- ==================== VOTERS TAB ==================== -->
-            <!-- ==================== VOTERS TAB ==================== -->
             <div id="tab-voters" class="tab-content">
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="text-2xl font-bold text-[#1a3c5e]">Voter Management</h2>
@@ -439,7 +486,6 @@
                     </div>
                 </div>
 
-                <!-- Stats Row -->
                 <!-- Stats Row -->
                 <div class="grid grid-cols-3 gap-4 mb-6">
                     <div class="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
@@ -520,7 +566,7 @@
                                 <!-- Voter ID -->
                                 <div class="bg-white rounded-lg p-3 border border-gray-100">
                                     <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">
-                                        <i class="fas fa-id-card mr-1 text-blue-400"></i> Voter ID
+                                        <i class="fas fa-id-card mr-1 text-blue-400"></i> ID
                                     </p>
                                     <p class="text-sm font-bold text-gray-800" th:text="${user.voterId}">ID</p>
                                 </div>
@@ -574,9 +620,50 @@
                                     <p class="text-sm font-bold text-gray-800" th:text="${user.email}">Email</p>
                                 </div>
 
+                                <!-- Aadhaar Card Image -->
+                                <div class="bg-white rounded-lg p-3 border border-amber-200 md:col-span-4">
+                                    <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-2">
+                                        <i class="fas fa-image mr-1 text-amber-400"></i> Aadhaar Card Image
+                                    </p>
+
+                                    <!-- Image exists -->
+                                    <div th:if="${user.aadhaarImage != null and !#strings.isEmpty(user.aadhaarImage)}">
+                                        <div class="flex items-start space-x-4">
+                                            <!-- Thumbnail -->
+                                            <img th:src="@{/admin/aadhaar-image/{f}(f=${user.aadhaarImage})}"
+                                                 th:data-userid="${user.userId}"
+                                                 th:data-filename="${user.aadhaarImage}"
+                                                 onclick="openAadhaarModal(this.dataset.userid, this.dataset.filename)"
+                                                 alt="Aadhaar Card"
+                                                 class="w-40 h-28 object-cover rounded-lg border-2 border-amber-200 shadow cursor-pointer hover:opacity-80 transition">
+
+                                            <!-- View Full Size Button -->
+                                            <button type="button"
+                                                    th:data-userid="${user.userId}"
+                                                    th:data-filename="${user.aadhaarImage}"
+                                                    onclick="openAadhaarModal(this.dataset.userid, this.dataset.filename)"
+                                                    class="mt-2 px-4 py-1.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-lg transition flex items-center space-x-1 w-fit">
+                                                <i class="fas fa-expand mr-1"></i> View Full Size
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- No image uploaded -->
+                                    <div th:if="${user.aadhaarImage == null or #strings.isEmpty(user.aadhaarImage)}"
+                                         class="flex items-center space-x-3 py-3">
+                                        <div class="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center">
+                                            <i class="fas fa-file-image text-red-300 text-lg"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-semibold text-red-400">No Aadhaar Image Uploaded</p>
+                                            <p class="text-xs text-gray-400">User did not upload a document during registration.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
                             </div>
 
-                            <!-- Approve button inside details too -->
+                            <!-- Approve button inside details -->
                             <div th:if="${!user.verified}" class="mt-4 flex justify-end">
                                 <a th:href="@{/verify-voter/{id}(id=${user.userId})}"
                                     onclick="return confirm('Approve this voter?')"
@@ -586,6 +673,7 @@
                                 </a>
                             </div>
                         </div>
+
                     </div>
 
                     <!-- Empty state -->
@@ -600,18 +688,14 @@
 
 
             <!-- ==================== RESULTS TAB ==================== -->
-            <!-- ==================== RESULTS TAB ==================== -->
-
-            <!-- ==================== RESULTS TAB ==================== -->
             <div id="tab-results" class="tab-content">
 
-
+                <!-- HIDDEN DATA FOR JAVASCRIPT TIMER CHECK -->
                 <div th:each="e : ${elections}" th:if="${e.status == 'ACTIVE'}">
                     <input type="hidden" th:id="'endDate-' + ${e.electionId}" th:value="${e.endDate}">
                     <input type="hidden" th:id="'endTime-' + ${e.electionId}"
                         th:value="${e.endTime != null ? #temporals.format(e.endTime, 'HH:mm') : '17:00'}">
                 </div>
-
 
                 <!-- Active Election ke time LIVE header -->
                 <div th:if="${activeElections > 0}" class="flex items-center justify-between mb-6">
@@ -664,32 +748,33 @@
                         <p class="text-xs font-semibold text-green-600 mt-1 uppercase tracking-wide">Voter Turnout</p>
                     </div>
                 </div>
+
                 <!-- Countdown Timer -->
                 <div th:if="${activeElections > 0}" class="space-y-4 mb-6">
-    <div th:each="e : ${elections}" th:if="${e.status == 'ACTIVE'}"
-         class="bg-white rounded-xl border border-amber-200 shadow-sm p-5">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-xs font-bold text-gray-400 uppercase">Election Ends In</p>
-                <p class="text-sm font-bold text-gray-700" th:text="${e.electionName}">Name</p>
-            </div>
-            <div class="flex space-x-3">
-                <div class="bg-[#1a3c5e] text-white rounded-xl px-4 py-3 min-w-[64px] text-center">
-                    <p class="text-2xl font-extrabold" th:id="'cd-hours-' + ${e.electionId}">00</p>
-                    <p class="text-xs text-gray-300">Hours</p>
+                    <div th:each="e : ${elections}" th:if="${e.status == 'ACTIVE'}"
+                        class="bg-white rounded-xl border border-amber-200 shadow-sm p-5">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-bold text-gray-400 uppercase">Election Ends In</p>
+                                <p class="text-sm font-bold text-gray-700" th:text="${e.electionName}">Name</p>
+                            </div>
+                            <div class="flex space-x-3">
+                                <div class="bg-[#1a3c5e] text-white rounded-xl px-4 py-3 min-w-[64px] text-center">
+                                    <p class="text-2xl font-extrabold" th:id="'cd-hours-' + ${e.electionId}">00</p>
+                                    <p class="text-xs text-gray-300">Hours</p>
+                                </div>
+                                <div class="bg-[#1a3c5e] text-white rounded-xl px-4 py-3 min-w-[64px] text-center">
+                                    <p class="text-2xl font-extrabold" th:id="'cd-minutes-' + ${e.electionId}">00</p>
+                                    <p class="text-xs text-gray-300">Minutes</p>
+                                </div>
+                                <div class="bg-amber-500 text-white rounded-xl px-4 py-3 min-w-[64px] text-center">
+                                    <p class="text-2xl font-extrabold" th:id="'cd-seconds-' + ${e.electionId}">00</p>
+                                    <p class="text-xs text-white/80">Seconds</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="bg-[#1a3c5e] text-white rounded-xl px-4 py-3 min-w-[64px] text-center">
-                    <p class="text-2xl font-extrabold" th:id="'cd-minutes-' + ${e.electionId}">00</p>
-                    <p class="text-xs text-gray-300">Minutes</p>
-                </div>
-                <div class="bg-amber-500 text-white rounded-xl px-4 py-3 min-w-[64px] text-center">
-                    <p class="text-2xl font-extrabold" th:id="'cd-seconds-' + ${e.electionId}">00</p>
-                    <p class="text-xs text-white/80">Seconds</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
                 <!-- Results Card -->
                 <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
@@ -877,11 +962,10 @@
             </div>
 
             <!-- ==================== LOGS TAB ==================== -->
-            <!-- ==================== LOGS TAB ==================== -->
             <div id="tab-logs" class="tab-content">
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="text-2xl font-bold text-[#1a3c5e]">Activity Logs</h2>
-                    <span
+                    <span th:if="${activeElections > 0}"
                         class="inline-flex items-center bg-red-100 text-red-600 text-xs font-bold px-3 py-1 rounded-full">
                         <span class="w-2 h-2 bg-red-500 rounded-full mr-1.5 animate-ping"></span> LIVE
                     </span>
@@ -1025,7 +1109,34 @@
         </main>
     </div>
 
-    <!-- ✅ FIXED JAVASCRIPT -->
+    <!-- ========================================== -->
+    <!-- AADHAAR IMAGE MODAL -->
+    <!-- ========================================== -->
+    <div id="aadhaarModal" class="hidden fixed inset-0 z-[100] items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div class="relative max-w-4xl w-full bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col">
+            <!-- Modal Header -->
+            <div class="flex justify-between items-center p-4 border-b border-gray-200 bg-gray-50">
+                <h3 class="text-lg font-bold text-gray-800">
+                    <i class="fas fa-id-card text-amber-500 mr-2"></i> Aadhaar Card Verification
+                </h3>
+                <button type="button" onclick="closeAadhaarModal()" class="text-gray-400 hover:text-red-500 transition">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            <!-- Modal Body -->
+            <div class="p-4 flex-1 overflow-auto flex justify-center items-center bg-gray-100 min-h-[50vh]">
+                <img id="aadhaarModalImg" src="" alt="Full Size Aadhaar" class="max-w-full max-h-[70vh] object-contain rounded shadow">
+            </div>
+            <!-- Modal Footer -->
+            <div class="p-3 border-t border-gray-200 bg-gray-50 text-xs text-gray-500 flex justify-between items-center">
+                <span>File: <span id="aadhaarModalFilename" class="font-mono text-gray-700 font-semibold"></span></span>
+                <button type="button" onclick="closeAadhaarModal()" class="px-5 py-2 bg-gray-800 hover:bg-gray-900 text-white rounded-lg font-semibold transition shadow-md">Close Window</button>
+            </div>
+        </div>
+    </div>
+    <!-- ========================================== -->
+
+
     <script>
         // Tab switching
         function showTab(tabName) {
@@ -1035,36 +1146,7 @@
             document.querySelector('[data-tab="' + tabName + '"]').classList.add('active');
         }
 
-        // ✅ FIXED: reads from hidden spans — no Thymeleaf string injection issues
-        function openEditForm(id) {
-            const fullName = document.getElementById('cname-' + id).innerText;
-            const partyName = document.getElementById('cparty-' + id).innerText;
-            const symbol = document.getElementById('csymbol-' + id).innerText;
-            const description = document.getElementById('cdesc-' + id).innerText;
-            const electionId = document.getElementById('celec-' + id).innerText;
-
-            // Fill edit form
-            document.getElementById('editFullName').value = fullName;
-            document.getElementById('editPartyName').value = partyName;
-            document.getElementById('editSymbol').value = symbol;
-            document.getElementById('editDescription').value = description;
-
-            // Set election dropdown
-            const select = document.getElementById('editElectionId');
-            for (let option of select.options) {
-                option.selected = (option.value == electionId.trim());
-            }
-
-            // Set form POST url
-            document.getElementById('editFormTag').action = '/edit-candidate/' + id;
-
-            // Show edit form, hide add form
-            document.getElementById('addCandidateForm').classList.add('hidden');
-            document.getElementById('editCandidateForm').classList.remove('hidden');
-            document.getElementById('editCandidateForm').scrollIntoView({ behavior: 'smooth' });
-        }
-
-
+        // Toggle Voter Details
         function toggleVoterDetails(userId) {
             const details = document.getElementById('voter-details-' + userId);
             if (details.classList.contains('hidden')) {
@@ -1074,34 +1156,85 @@
             }
         }
 
-
-        // Countdown Timer
-
-
-        // YE NAYA — LAGAO
-        document.querySelectorAll('input[id^="endDate-"]').forEach(function(input) {
-    const electionId = input.id.replace('endDate-', '');
-    const endDateStr = input.value;
-    const endTimeStr = document.getElementById('endTime-' + electionId).value || '17:00';
-    if (!endDateStr) return;
-    const endDateTime = new Date(endDateStr + 'T' + endTimeStr + ':00');
-    function updateCountdown() {
-        const diff = endDateTime - new Date();
-        if (diff <= 0) {
-            document.getElementById('cd-hours-' + electionId).innerText = '00';
-            document.getElementById('cd-minutes-' + electionId).innerText = '00';
-            document.getElementById('cd-seconds-' + electionId).innerText = '00';
-            return;
+        // Aadhaar Modal logic
+        function openAadhaarModal(userId, filename) {
+            const url = '/admin/aadhaar-image/' + filename;
+            document.getElementById('aadhaarModalImg').src = url;
+            document.getElementById('aadhaarModalFilename').innerText = filename;
+            document.getElementById('aadhaarModal').classList.remove('hidden');
+            document.getElementById('aadhaarModal').classList.add('flex');
         }
-        document.getElementById('cd-hours-' + electionId).innerText = String(Math.floor(diff / 3600000)).padStart(2, '0');
-        document.getElementById('cd-minutes-' + electionId).innerText = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
-        document.getElementById('cd-seconds-' + electionId).innerText = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
-    }
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
-});
 
+        function closeAadhaarModal() {
+            document.getElementById('aadhaarModal').classList.add('hidden');
+            document.getElementById('aadhaarModal').classList.remove('flex');
+            document.getElementById('aadhaarModalImg').src = '';
+        }
 
+        // Close on backdrop click
+        document.getElementById('aadhaarModal').addEventListener('click', function(e) {
+            if (e.target === this) closeAadhaarModal();
+        });
+
+        // ==========================================================
+        // AUTO-STOP ELECTION LOGIC
+        // ==========================================================
+        document.querySelectorAll('input[id^="endDate-"]').forEach(function(input) {
+            const electionId = input.id.replace('endDate-', '');
+            const endDateStr = input.value;
+            const endTimeStr = document.getElementById('endTime-' + electionId).value || '17:00';
+            if (!endDateStr) return;
+            
+            // Reconstruct the exact End Date & Time
+            const endDateTime = new Date(`${endDateStr}T${endTimeStr}:00`);
+            let hasExpired = false;
+            
+            function updateCountdown() {
+                const diff = endDateTime - new Date();
+                
+                // IF TIME IS UP (Hits Zero)
+                if (diff <= 0) {
+                    if (!hasExpired) {
+                        hasExpired = true; // Prevent multiple requests
+                        if (intervalId) clearInterval(intervalId); // Stop counting
+                        
+                        // Set UI to 00 visually
+                        const h = document.getElementById('cd-hours-' + electionId);
+                        const m = document.getElementById('cd-minutes-' + electionId);
+                        const s = document.getElementById('cd-seconds-' + electionId);
+                        if(h) h.innerText = '00';
+                        if(m) m.innerText = '00';
+                        if(s) s.innerText = '00';
+
+                        console.log("Time is up! Auto-stopping election ID: " + electionId);
+                        
+                        // AUTOMATICALLY STOP ELECTION ON SERVER 
+                        fetch('/toggle-election/' + electionId, { method: 'GET' })
+                            .then(response => {
+                                if(response.ok) {
+                                    // Refresh page automatically to lock the results
+                                    window.location.reload();
+                                }
+                            })
+                            .catch(err => console.error("Error auto-stopping election:", err));
+                    }
+                    return; // Exit function so it stops updating
+                }
+                
+                // Normal countdown logic (Still Active)
+                const h = document.getElementById('cd-hours-' + electionId);
+                const m = document.getElementById('cd-minutes-' + electionId);
+                const s = document.getElementById('cd-seconds-' + electionId);
+                
+                if(h) h.innerText = String(Math.floor(diff / 3600000)).padStart(2, '0');
+                if(m) m.innerText = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
+                if(s) s.innerText = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+            }
+            
+            // Run instantly, then loop every second
+            updateCountdown();
+            let intervalId = setInterval(updateCountdown, 1000);
+        });
     </script>
 
 </body>

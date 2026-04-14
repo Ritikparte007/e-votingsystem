@@ -56,7 +56,6 @@
                     </div>
                     <div>
                         <h1 class="text-lg font-bold leading-tight">Online Voting System</h1>
-                        <p class="text-xs text-gray-300">Government of India — Election Commission</p>
                     </div>
                 </div>
                 <div class="flex items-center space-x-3">
@@ -304,6 +303,117 @@
             </div>
         </div>
     </section>
+
+    <!-- ==================== MEET THE CANDIDATES ==================== -->
+<section class="py-16 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <!-- Header -->
+        <div class="text-center mb-10">
+            <h3 class="text-3xl md:text-4xl font-bold text-[#1a3c5e]">Meet the Candidates</h3>
+            <p class="text-gray-500 mt-3">Candidates contesting in the current election</p>
+            <div class="w-16 h-1 bg-yellow-400 mx-auto mt-4 rounded-full"></div>
+        </div>
+
+        <!-- Candidate Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+            <div th:each="c : ${candidates}"
+                 class="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all overflow-hidden group">
+
+                <!-- Top color bar -->
+                <div class="h-2 bg-gradient-to-r from-yellow-400 to-amber-500"></div>
+
+                <div class="p-6">
+
+                    <!-- Profile Image + Info -->
+                    <div class="flex items-center space-x-4 mb-4">
+
+                        <!-- Profile Image -->
+                        <div class="w-20 h-20 rounded-full overflow-hidden border-4 border-amber-100 shadow-md flex-shrink-0 bg-gray-50 flex items-center justify-center">
+                            <!-- Real image -->
+                            <img th:if="${c.candidateImage != null and !#strings.isEmpty(c.candidateImage)}"
+                                 th:src="@{/candidate-image/{f}(f=${c.candidateImage})}"
+                                 th:alt="${c.fullName}"
+                                 class="w-full h-full object-cover">
+                            <!-- Fallback emoji -->
+                            <span th:if="${c.candidateImage == null or #strings.isEmpty(c.candidateImage)}"
+                                  class="text-4xl"
+                                  th:text="${c.symbol}">🗳</span>
+                        </div>
+
+                        <!-- Name + Party + Badges -->
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-extrabold text-gray-800 text-lg leading-tight truncate"
+                                th:text="${c.fullName}">Name</h4>
+                            <p class="text-amber-600 font-semibold text-sm mt-0.5"
+                               th:text="${c.partyName}">Party</p>
+                            <div class="flex items-center flex-wrap gap-1 mt-1.5">
+                                <!-- Symbol -->
+                                <span class="bg-amber-50 border border-amber-200 text-amber-700 text-xs font-bold px-2 py-0.5 rounded-full"
+                                      th:text="${c.symbol}">🗳</span>
+                                <!-- Age -->
+                                <span th:if="${c.age != null}"
+                                      class="bg-gray-100 text-gray-600 text-xs font-semibold px-2 py-0.5 rounded-full"
+                                      th:text="${c.age} + ' yrs'">45 yrs</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Election linked -->
+                    <div th:if="${c.election != null}"
+                         class="flex items-center space-x-2 bg-blue-50 border border-blue-100 rounded-lg px-3 py-2 mb-3">
+                        <i class="fas fa-calendar-check text-blue-400 text-xs flex-shrink-0"></i>
+                        <span class="text-xs font-semibold text-blue-700 truncate"
+                              th:text="${c.election.electionName}">Election</span>
+                        <span th:if="${c.election.status == 'ACTIVE'}"
+                              class="ml-auto flex-shrink-0 bg-green-100 text-green-700 text-xs font-bold px-2 py-0.5 rounded-full">
+                            🟢 Live
+                        </span>
+                        <span th:if="${c.election.status == 'STOPPED'}"
+                              class="ml-auto flex-shrink-0 bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded-full">
+                            🔴 Ended
+                        </span>
+                    </div>
+
+                    <!-- Description -->
+                    <p th:if="${c.description != null and !#strings.isEmpty(c.description)}"
+                       class="text-gray-500 text-sm leading-relaxed line-clamp-3 mb-3"
+                       th:text="${c.description}">Bio</p>
+
+                    <!-- Footer -->
+                    <div class="pt-3 border-t border-gray-100 flex items-center justify-between">
+                        <span class="text-xs text-gray-400">
+                            <i class="fas fa-shield-alt mr-1"></i> Nomination Filed
+                        </span>
+                        <span class="bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full">
+                            ✅ Active
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- No candidates state -->
+            <div th:if="${#lists.isEmpty(candidates)}"
+                 class="col-span-3 text-center py-16 text-gray-400">
+                <i class="fas fa-user-slash text-5xl mb-4 block"></i>
+                <p class="font-semibold text-lg">No candidates added yet.</p>
+                <p class="text-sm mt-1">Check back soon!</p>
+            </div>
+        </div>
+
+        <!-- Login CTA -->
+        <div th:if="${activeElectionCount > 0}"
+             class="mt-10 text-center">
+            <a href="/login"
+               class="inline-flex items-center space-x-2 bg-[#1a3c5e] hover:bg-[#152f4a] text-white px-8 py-3.5 rounded-xl font-bold text-sm shadow-lg transition-all">
+                <i class="fas fa-vote-yea"></i>
+                <span>Login to Cast Your Vote</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+</section>
 
     <!-- Key Features -->
     <section class="py-16 bg-gray-50">

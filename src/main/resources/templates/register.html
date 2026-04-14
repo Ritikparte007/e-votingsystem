@@ -44,7 +44,7 @@
                     </div>
                     <div>
                         <h1 class="text-lg font-bold leading-tight">Online Voting System</h1>
-                        <p class="text-xs text-gray-300">Government of India — Election Commission</p>
+                        
                     </div>
                 </a>
                 <div class="flex items-center space-x-3">
@@ -71,21 +71,21 @@
 
             <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
 
-                <!-- ✅ Server Error Message -->
+                <!-- Server Error Message -->
                 <div th:if="${error}"
                      class="mb-6 bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-xl flex items-center space-x-2">
                     <i class="fas fa-exclamation-circle"></i>
                     <span th:text="${error}"></span>
                 </div>
 
-                <!-- ✅ Success Message (after redirect from login) -->
+                <!-- Success Message -->
                 <div th:if="${param.registered != null}"
                      class="mb-6 bg-green-50 border border-green-200 text-green-600 text-sm px-4 py-3 rounded-xl flex items-center space-x-2">
                     <i class="fas fa-check-circle"></i>
                     <span>Registration successful! Please login to continue.</span>
                 </div>
 
-                <form action="/register" method="post" id="registerForm">
+                <form action="/register" method="post" id="registerForm" enctype="multipart/form-data">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
                         <!-- Full Name -->
@@ -135,22 +135,25 @@
                             </div>
                         </div>
 
-                        <!-- Voter ID -->
+                        <!-- Voter ID (UPDATED) -->
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-1.5">
-                                Voter ID <span class="text-red-500">*</span>
+                                ID <span class="text-red-500">*</span>
                             </label>
                             <div class="relative">
                                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
                                     <i class="fas fa-id-card"></i>
                                 </span>
-                                <input type="text" name="voterId" required
+                                <input type="text" id="voterId" name="voterId" required
                                     placeholder="e.g. ABC1234567"
-                                    class="input-focus w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none transition">
+                                    maxlength="10"
+                                    pattern="[A-Z]{3}[0-9]{7}"
+                                    title="Must be 3 letters followed by 7 numbers"
+                                    class="input-focus w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none transition uppercase">
                             </div>
                         </div>
 
-                        <!-- Aadhaar -->
+                        <!-- Aadhaar (UPDATED) -->
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-1.5">
                                 Aadhaar Number <span class="text-red-500">*</span>
@@ -159,11 +162,30 @@
                                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
                                     <i class="fas fa-fingerprint"></i>
                                 </span>
-                                <input type="text" name="aadhaarNo" required
-                                    placeholder="XXXXXXXXXXXX"
-                                    pattern="[0-9]{12}"
-                                    maxlength="12"
+                                <input type="text" id="aadhaarNo" name="aadhaarNo" required
+                                    placeholder="1234 5678 9012"
+                                    maxlength="14"
+                                    pattern="\d{4} \d{4} \d{4}"
+                                    title="Must be 12 digits"
                                     class="input-focus w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none transition">
+                            </div>
+                        </div>
+
+                        <!-- Aadhaar Card Image Upload -->
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-semibold text-gray-700 mb-1.5">
+                                Upload Aadhaar Card Image <span class="text-red-500">*</span>
+                            </label>
+                            <div class="flex items-center justify-center w-full">
+                                <label for="aadhaarImage" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-xl cursor-pointer bg-gray-50 hover:bg-gray-100 hover:border-yellow-500 hover:bg-yellow-50/50 transition">
+                                    <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                        <i class="fas fa-cloud-upload-alt text-gray-400 text-3xl mb-2"></i>
+                                        <p class="mb-1 text-sm text-gray-500"><span class="font-semibold text-yellow-600">Click to upload</span> or drag and drop</p>
+                                        <p class="text-xs text-gray-400">JPG, PNG or JPEG (MAX. 5MB)</p>
+                                        <p id="fileNameDisplay" class="text-sm font-semibold text-green-600 mt-2 hidden"></p>
+                                    </div>
+                                    <input id="aadhaarImage" name="aadhaarImage" type="file" accept="image/jpeg, image/png, image/jpg" class="hidden" required />
+                                </label>
                             </div>
                         </div>
 
@@ -179,7 +201,6 @@
                                 <input type="date" name="dateOfBirth" id="dateOfBirth" required
                                     class="input-focus w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none transition">
                             </div>
-                            <!-- Age error -->
                             <p id="ageError" class="hidden text-xs text-red-500 mt-1">
                                 <i class="fas fa-exclamation-circle mr-1"></i>
                                 You must be 18 or older to register.
@@ -267,16 +288,14 @@
                                     <i class="fas fa-lock"></i>
                                 </span>
                                 <input type="password" id="confirmPassword" name="confirmPassword"  required
-    placeholder="Re-enter password"
-    class="input-focus w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none transition">
+                                    placeholder="Re-enter password"
+                                    class="input-focus w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none transition">
                             </div>
-                            <!-- Password match error -->
                             <p id="passwordError" class="hidden text-xs text-red-500 mt-1">
                                 <i class="fas fa-exclamation-circle mr-1"></i>
                                 Passwords do not match!
                             </p>
                         </div>
-
                     </div>
 
                     <!-- Terms -->
@@ -284,9 +303,9 @@
                         <input type="checkbox" id="terms" required class="mt-1 accent-yellow-500">
                         <label for="terms" class="text-sm text-gray-600">
                             I agree to the
-                            <a href="#" class="text-yellow-500 hover:underline">Terms of Service</a>
+                            <a href="/terms" class="text-yellow-500 hover:underline">Terms of Service</a>
                             and
-                            <a href="#" class="text-yellow-500 hover:underline">Privacy Policy</a>
+                            <a href="/privacy-policy" class="text-yellow-500 hover:underline">Privacy Policy</a>
                         </label>
                     </div>
 
@@ -315,9 +334,36 @@
         </div>
     </footer>
 
-    <!-- ✅ JavaScript Validation -->
+    <!-- JavaScript Validation & Interactions -->
     <script>
-        // Age check — 18+ only
+        // 1. Voter ID formatter (Auto Capitalize + Alphanumeric only)
+        document.getElementById('voterId').addEventListener('input', function () {
+            this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+        });
+
+        // 2. Aadhaar Formatter (Auto add space every 4 digits)
+        document.getElementById('aadhaarNo').addEventListener('input', function (e) {
+            // Strip out non-digits
+            let rawValue = e.target.value.replace(/\D/g, '');
+            let formattedValue = '';
+            
+            // Re-build string with spaces
+            for (let i = 0; i < rawValue.length; i++) {
+                if (i > 0 && i % 4 === 0) {
+                    formattedValue += ' ';
+                }
+                formattedValue += rawValue[i];
+            }
+            e.target.value = formattedValue;
+        });
+
+        // 3. Remove spaces from Aadhaar just before sending to backend
+        document.getElementById('registerForm').addEventListener('submit', function() {
+            let aadhaarInput = document.getElementById('aadhaarNo');
+            aadhaarInput.value = aadhaarInput.value.replace(/\s/g, ''); // Removes spaces
+        });
+
+        // 4. Age check — 18+ only
         document.getElementById('dateOfBirth').addEventListener('change', function () {
             const dob = new Date(this.value);
             const today = new Date();
@@ -335,7 +381,7 @@
             }
         });
 
-        // Password match check
+        // 5. Password match check
         document.getElementById('confirmPassword').addEventListener('input', function () {
             const password = document.getElementById('password').value;
             const passwordError = document.getElementById('passwordError');
@@ -345,6 +391,17 @@
             } else {
                 passwordError.classList.add('hidden');
                 this.setCustomValidity('');
+            }
+        });
+
+        // 6. File upload UI update (Displays the name of the file selected)
+        document.getElementById('aadhaarImage').addEventListener('change', function (e) {
+            const fileDisplay = document.getElementById('fileNameDisplay');
+            if (this.files && this.files.length > 0) {
+                fileDisplay.textContent = 'Selected File: ' + this.files[0].name;
+                fileDisplay.classList.remove('hidden');
+            } else {
+                fileDisplay.classList.add('hidden');
             }
         });
     </script>

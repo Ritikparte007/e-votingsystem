@@ -1,9 +1,15 @@
 package com.example.votingsystem.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.votingsystem.repository.ActivityLogRepository;
 import com.example.votingsystem.service.*;
@@ -11,11 +17,12 @@ import com.example.votingsystem.service.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
-import java.util.List;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @Controller
 public class AdminController {
-    
+
     @Autowired private UserService userService;
     @Autowired private VoteService voteService;
     @Autowired private ElectionService electionService;
@@ -86,16 +93,84 @@ public class AdminController {
         return "redirect:/admin";
     }
 
+    // ─── Aadhaar Image Serve ─────────────────────────────────────────────────
+    @GetMapping("/admin/aadhaar-image/{filename}")
+    public ResponseEntity<Resource> serveAadhaarImage(
+            @PathVariable String filename,
+            HttpSession session) throws Exception {
+
+        if (session.getAttribute("adminMode") == null)
+            return ResponseEntity.status(403).build();
+
+        if (filename.contains("..") || filename.contains("/") || filename.contains("\\"))
+            return ResponseEntity.badRequest().build();
+
+        Path filePath = Paths.get("uploads/aadhaar").resolve(filename).normalize();
+        Resource resource = new UrlResource(filePath.toUri());
+
+        if (!resource.exists() || !resource.isReadable())
+            return ResponseEntity.notFound().build();
+
+        String contentType = filename.toLowerCase().endsWith(".png") ? "image/png" : "image/jpeg";
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .body(resource);
+    }
+
+    // ─── Candidate Image Serve ───────────────────────────────────────────────  ✅ NEW
+    @GetMapping("/admin/candidate-image/{filename}")
+    public ResponseEntity<Resource> serveCandidateImage(
+            @PathVariable String filename,
+            HttpSession session) throws Exception {
+
+        if (session.getAttribute("adminMode") == null)
+            return ResponseEntity.status(403).build();
+
+        if (filename.contains("..") || filename.contains("/") || filename.contains("\\"))
+            return ResponseEntity.badRequest().build();
+
+        Path filePath = Paths.get("uploads/candidates").resolve(filename).normalize();
+        Resource resource = new UrlResource(filePath.toUri());
+
+        if (!resource.exists() || !resource.isReadable())
+            return ResponseEntity.notFound().build();
+
+        String contentType = filename.toLowerCase().endsWith(".png") ? "image/png" : "image/jpeg";
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .body(resource);
+    }
+
     // ─── Candidate Management ────────────────────────────────────────────────
     @PostMapping("/add-candidate")
     public String addCandidate(
-            @RequestParam String fullName,  @RequestParam String partyName,
-            @RequestParam String symbol,    @RequestParam String description,
+            @RequestParam String fullName,
+            @RequestParam String partyName,
+            @RequestParam String symbol,
+            @RequestParam String description,
             @RequestParam Integer electionId,
-            HttpServletRequest request) {
+            @RequestParam Integer age,                                     // ✅ NEW
+            @RequestParam("candidateImage") MultipartFile candidateImage,  // ✅ NEW
+            HttpServletRequest request,
+            RedirectAttributes redirectAttributes) {
 
-        candidateService.addCandidate(fullName, partyName, symbol, description, electionId);
-        logService.log("ADMIN", "Admin", "Candidate Added", fullName + " (" + partyName + ")", request);
+        // ✅ Image save karo
+        String savedImage = null;
+        try {
+            savedImage = candidateService.saveCandidateImage(candidateImage);
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error",
+                "Image upload failed: " + e.getMessage());
+            return "redirect:/admin";
+        }
+
+        candidateService.addCandidate(
+            fullName, partyName, symbol, description,
+            electionId, age, savedImage               // ✅ pass karo
+        );
+
+        logService.log("ADMIN", "Admin", "Candidate Added",
+            fullName + " (" + partyName + ")", request);
         return "redirect:/admin";
     }
 
