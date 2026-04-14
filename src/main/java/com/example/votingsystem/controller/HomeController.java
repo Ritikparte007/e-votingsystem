@@ -206,7 +206,7 @@ public class HomeController {
         try {
             otpService.sendOtpSms(mobileNo, otp);
         } catch (Exception e) {
-            model.addAttribute("error", "SMS send nahi hua: " + e.getMessage());
+            model.addAttribute("error", "Failed to send OTP. Please try again: " + e.getMessage());
             return "register";
         }
 
@@ -234,13 +234,13 @@ public class HomeController {
         // ── OTP Expired? (5 minutes) ──────────────────────────────────────────
         if (System.currentTimeMillis() - otpTime > 5 * 60 * 1000L) {
             clearRegSession(session);
-            model.addAttribute("error", "OTP expire ho gaya! Dobara register karo.");
+            model.addAttribute("error", "OTP has expired! Please register again.");
             return "redirect:/register";
         }
 
         // ── Wrong OTP? ────────────────────────────────────────────────────────
         if (!savedOtp.equals(otp.trim())) {
-            model.addAttribute("error", "Galat OTP!");
+            model.addAttribute("error", "Invalid OTP! Please enter the correct OTP");
             model.addAttribute("maskedMobile", maskMobile(mobile));
             return "verify-otp";
         }
@@ -277,9 +277,9 @@ public class HomeController {
 
         try {
             otpService.sendOtpSms(mobile, newOtp);
-            model.addAttribute("success", "Naya OTP bheja gaya!");
+            model.addAttribute("success", "New OTP sent successfully!");
         } catch (Exception e) {
-            model.addAttribute("error", "OTP bhejne mein problem.");
+            model.addAttribute("error", "");
         }
 
         model.addAttribute("maskedMobile", maskMobile(mobile));
