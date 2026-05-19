@@ -51,7 +51,7 @@
                     </div>
                     <div>
                         <h1 class="text-lg font-bold leading-tight">Online Voting System</h1>
-                        <p class="text-xs text-gray-300">Government of India — Election Commission</p>
+                        
                     </div>
                 </a>
                 <div class="flex items-center space-x-3">
@@ -128,6 +128,12 @@
                     <!-- Error message -->
                     <div id="loginError" class="hidden mb-4 bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-xl">
     <p th:if="${error}" th:text="${error}" style="color:red;"></p>
+</div>
+
+
+<div th:if="${param.error == 'ip_changed'}" 
+     class="mb-4 bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl font-semibold">
+    ⚠️ IP changed — Session terminated for security.
 </div>
 
                     <!-- Submit -->

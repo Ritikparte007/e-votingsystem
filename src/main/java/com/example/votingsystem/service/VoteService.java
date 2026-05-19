@@ -23,12 +23,12 @@ public class VoteService {
     @Autowired
     private ElectionRepository electionRepository;
 
-    // ─── Pehle se vote diya hai? ─────────────────────────────────────────────
+    // ─── vote already gievn? ─────────────────────────────────────────────
     public boolean hasAlreadyVoted(User user, Election election) {
         return voteRepository.existsByUserAndElection(user, election);
     }
 
-    // ─── Vote Save karo ──────────────────────────────────────────────────────
+    // ─── Vote Save  ──────────────────────────────────────────────────────
     public String castVote(User user, Election election, Candidate candidate) {
         // Vote save
         Vote vote = new Vote();
@@ -38,7 +38,7 @@ public class VoteService {
         vote.setVotedAt(LocalDateTime.now());
         voteRepository.save(vote);
 
-        // Receipt generate aur save
+        // Receipt generate or save
         String receiptNo = "VOTE-" + System.currentTimeMillis();
         VoteReceipt receipt = new VoteReceipt();
         receipt.setReceiptNo(receiptNo);

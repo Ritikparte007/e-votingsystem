@@ -51,7 +51,7 @@
                     </div>
                     <div>
                         <h1 class="text-lg font-bold leading-tight">Online Voting System</h1>
-                        <p class="text-xs text-gray-300">Government of India — Election Commission</p>
+                       
                     </div>
                 </a>
                 <div class="flex items-center space-x-4">
@@ -71,7 +71,7 @@
     <main class="flex-1 py-10 px-4">
         <div class="max-w-4xl mx-auto">
 
-            <!-- ✅ VERIFICATION PENDING — Unverified voter ko dikhao -->
+            <!-- ✅ VERIFICATION PENDING — Show to unverified voters -->
             <div th:if="${!user.verified}"
                  class="bg-amber-50 border border-amber-300 rounded-2xl p-10 text-center shadow-sm">
 
@@ -83,15 +83,15 @@
                 <!-- Title -->
                 <p class="font-bold text-amber-700 text-2xl mb-2">Account Verification Pending</p>
                 <p class="text-amber-600 text-sm mt-2 leading-relaxed">
-                    Tumhara account abhi <strong>admin se approve</strong> hona baaki hai.<br>
-                    Approve hone ke baad tum vote de sakte ho.
+                    Your account is currently <strong>pending admin approval</strong>.<br>
+                    Once approved, you will be able to cast your vote.
                 </p>
 
                 <!-- Voter Info Card -->
                 <div class="mt-6 bg-white rounded-xl p-5 inline-block border border-amber-200 text-left shadow-sm">
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <p class="text-xs text-gray-400 font-semibold uppercase">Voter ID</p>
+                            <p class="text-xs text-gray-400 font-semibold uppercase">ID</p>
                             <p class="font-bold text-gray-700 mt-1" th:text="${user.voterId}">ID</p>
                         </div>
                         <div>

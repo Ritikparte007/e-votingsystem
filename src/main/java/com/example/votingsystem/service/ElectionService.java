@@ -34,7 +34,7 @@ public class ElectionService {
         return electionRepository.findById(id).orElse(null);
     }
 
-    // ─── Nai election add karo ────────────────────────────────────────────────
+    // ─── new election add karo ────────────────────────────────────────────────
     public void addElection(String name, String startDate, String startTime,
                             String endDate, String endTime) {
         Election election = new Election();
